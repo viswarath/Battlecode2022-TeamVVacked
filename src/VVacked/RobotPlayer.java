@@ -34,20 +34,22 @@ public strictfp class RobotPlayer {
         // You can also use indicators to save debug notes in replays.
         rc.setIndicatorString("Hello world!");
 
-        try {
-            // The same run() function is called for every robot on your team, even if they are
-            // different types. Here, we separate the control depending on the RobotType, so we can
-            // use different strategies on different robots. If you wish, you are free to rewrite
-            // this into a different control structure!
-            switch (rc.getType()) {
-                case ARCHON:     Archon.init(rc);  break;
-                case MINER:      Miner.init(rc);   break;
-                case SOLDIER:    Soldier.init(rc); break;
-                case LABORATORY: Laboratory.init(rc); break;// Examplefuncsplayer doesn't use any of these robot types below.
-                case WATCHTOWER: Watchtower.init(rc); break;// You might want to give them a try!
-                case BUILDER:    Builder.init(rc); break;
-                case SAGE:       Sage.init(rc); break;
-            }
+        // The same run() function is called for every robot on your team, even if they are
+        // different types. Here, we separate the control depending on the RobotType, so we can
+        // use different strategies on different robots. If you wish, you are free to rewrite
+        // this into a different control structure!
+        switch (rc.getType()) {
+            case ARCHON:     Archon.init(rc);  break;
+            case MINER:      Miner.init(rc);   break;
+            case SOLDIER:    Soldier.init(rc); break;
+            case LABORATORY: Laboratory.init(rc); break;// Examplefuncsplayer doesn't use any of these robot types below.
+            case WATCHTOWER: Watchtower.init(rc); break;// You might want to give them a try!
+            case BUILDER:    Builder.init(rc); break;
+            case SAGE:       Sage.init(rc); break;
+            default:
+                break;
+        }
+        
 
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite
@@ -66,7 +68,7 @@ public strictfp class RobotPlayer {
                     case LABORATORY:    Laboratory.run(rc);     break;
                     case WATCHTOWER:    Watchtower.run(rc);     break;
                     case BUILDER:       Builder.run(rc);        break;
-                    case SAGE:          SAGE.run(rc);           break;
+                    case SAGE:          Sage.run(rc);           break;
                 }
 
             } catch (GameActionException e) {
@@ -91,80 +93,5 @@ public strictfp class RobotPlayer {
         }
 
         // Your code should never reach here (unless it's intentional)! Self-destruction imminent...
-    }
-
-    /**
-     * Run a single turn for an Archon.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static void runArchon(RobotController rc) throws GameActionException {
-        // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        if (rng.nextBoolean()) {
-            // Let's try to build a miner.
-            rc.setIndicatorString("Trying to build a miner");
-            if (rc.canBuildRobot(RobotType.MINER, dir)) {
-                rc.buildRobot(RobotType.MINER, dir);
-            }
-        } else {
-            // Let's try to build a soldier.
-            rc.setIndicatorString("Trying to build a soldier");
-            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
-            }
-        }
-    }
-
-    /**
-     * Run a single turn for a Miner.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static void runMiner(RobotController rc) throws GameActionException {
-        // Try to mine on squares around us.
-        MapLocation me = rc.getLocation();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                // Notice that the Miner's action cooldown is very low.
-                // You can mine multiple times per turn!
-                while (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
-                }
-                while (rc.canMineLead(mineLocation)) {
-                    rc.mineLead(mineLocation);
-                }
-            }
-        }
-
-        // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            System.out.println("I moved!");
-        }
-    }
-
-    /**
-     * Run a single turn for a Soldier.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static void runSoldier(RobotController rc) throws GameActionException {
-        // Try to attack someone
-        int radius = rc.getType().actionRadiusSquared;
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        if (enemies.length > 0) {
-            MapLocation toAttack = enemies[0].location;
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
-            }
-        }
-
-        // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            System.out.println("I moved!");
-        }
     }
 }
