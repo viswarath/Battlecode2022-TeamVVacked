@@ -3,6 +3,7 @@ package VVacked;
 import battlecode.common.*;
 
 public class Archon {
+    
     public static void run(RobotController rc) throws GameActionException{
         Direction build = getSpawnDir(rc, RobotType.MINER);
         int roundNum = rc.getRoundNum();
