@@ -39,13 +39,13 @@ public strictfp class RobotPlayer {
         // use different strategies on different robots. If you wish, you are free to rewrite
         // this into a different control structure!
         switch (rc.getType()) {
-            case ARCHON:     Archon.init(rc);  break;
-            case MINER:      Miner.init(rc);   break;
-            case SOLDIER:    Soldier.init(rc); break;
-            case LABORATORY: Laboratory.init(rc); break;// Examplefuncsplayer doesn't use any of these robot types below.
-            case WATCHTOWER: Watchtower.init(rc); break;// You might want to give them a try!
-            case BUILDER:    Builder.init(rc); break;
-            case SAGE:       Sage.init(rc); break;
+            case ARCHON:     //Archon.init(rc);  break;
+            case MINER:      //Miner.init(rc);   break;
+            case SOLDIER:    //Soldier.init(rc); break;
+            case LABORATORY: //Laboratory.init(rc); break;// Examplefuncsplayer doesn't use any of these robot types below.
+            case WATCHTOWER: //Watchtower.init(rc); break;// You might want to give them a try!
+            case BUILDER:    //Builder.init(rc); break;
+            case SAGE:       //Sage.init(rc); break;
             default:
                 break;
         }
@@ -64,11 +64,11 @@ public strictfp class RobotPlayer {
 
                     case ARCHON:        Archon.run(rc);         break;
                     case MINER:         Miner.run(rc);          break;
-                    case SOLDIER:       Soldier.run(rc);        break;
-                    case LABORATORY:    Laboratory.run(rc);     break;
-                    case WATCHTOWER:    Watchtower.run(rc);     break;
-                    case BUILDER:       Builder.run(rc);        break;
-                    case SAGE:          Sage.run(rc);           break;
+                    case SOLDIER:       //Soldier.run(rc);        break;
+                    case LABORATORY:    //Laboratory.run(rc);     break;
+                    case WATCHTOWER:    //Watchtower.run(rc);     break;
+                    case BUILDER:      // Builder.run(rc);        break;
+                    case SAGE:          //Sage.run(rc);           break;
                 }
 
             } catch (GameActionException e) {
