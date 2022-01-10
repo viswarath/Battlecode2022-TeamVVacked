@@ -40,7 +40,7 @@ public strictfp class RobotPlayer {
         // this into a different control structure!
         switch (rc.getType()) {
             case ARCHON:     //Archon.init(rc);  break;
-            case MINER:      //Miner.init(rc);   break;
+            case MINER:      Miner.init(rc);   break;
             case SOLDIER:    //Soldier.init(rc); break;
             case LABORATORY: //Laboratory.init(rc); break;// Examplefuncsplayer doesn't use any of these robot types below.
             case WATCHTOWER: //Watchtower.init(rc); break;// You might want to give them a try!

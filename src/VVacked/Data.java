@@ -16,4 +16,7 @@ public class Data {
         Direction.WEST,
         Direction.NORTHWEST,
     };
+
+    public static Direction spawnDir = Direction.CENTER;
+    
 }

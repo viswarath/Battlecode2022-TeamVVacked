@@ -7,10 +7,9 @@ public class Archon {
     public static void run(RobotController rc) throws GameActionException{
         Direction build = getSpawnDir(rc, RobotType.MINER);
         int roundNum = rc.getRoundNum();
-        if (roundNum <= 9 && build != Direction.CENTER){
+        if (build != Direction.CENTER){
             rc.setIndicatorString("Trying to build a miner");
             rc.buildRobot(RobotType.MINER, build);
-            
         }
     }
 
@@ -21,7 +20,7 @@ public class Archon {
                 return Data.directions[i];
             }
         }
-    return Direction.CENTER;
+        return Direction.CENTER;
     }
 }
 

@@ -8,19 +8,20 @@ public class Miner {
         RobotInfo[] robots = rc.senseNearbyRobots();
         //current MapLocation
         MapLocation loc = rc.getLocation();
-        //direction of movement
-        Direction move = Direction.CENTER;
 
-        for (RobotInfo robot : robots){
-            if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.ARCHON){
-                MapLocation base = robot.getLocation();
-                move = base.directionTo(loc);
-            }
+        if (rc.canMove(Data.spawnDir)){
+            rc.move(Data.spawnDir);
         }
 
-        if (rc.canMove(move)){
-            rc.move(move);
-        }
+    }
 
+    public static void init(RobotController rc) throws GameActionException{
+        RobotInfo[] robots = rc.senseNearbyRobots();
+            for (RobotInfo robot : robots){
+                if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.ARCHON){
+                    MapLocation base = robot.getLocation();
+                    Data.spawnDir = base.directionTo(rc.getLocation());
+                }
+        }
     }
 }
