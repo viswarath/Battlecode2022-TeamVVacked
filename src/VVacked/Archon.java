@@ -3,18 +3,7 @@ package VVacked;
 import battlecode.common.*;
 
 public class Archon {
-<<<<<<< HEAD
-    public static int minerPhaseEnd = 100;
-
-    public static void run(RobotController rc) throws GameActionException {
-        
-    }
-
-    public static void SpawnPhaseLogic(RobotController rc) {
-        if (rc.turnCount < minerEndPhase) {
-            
-        }
-=======
+    
     public static void run(RobotController rc) throws GameActionException{
         Direction build = getSpawnDir(rc, RobotType.MINER);
         int roundNum = rc.getRoundNum();
@@ -33,7 +22,6 @@ public class Archon {
             }
         }
     return Direction.CENTER;
->>>>>>> 933410d3df7874cce0b4b3910756e7ce277cedbb
     }
 }
 
