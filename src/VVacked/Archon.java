@@ -16,9 +16,9 @@ public class Archon {
 
 
     public static Direction getSpawnDir(RobotController rc, RobotType type) throws GameActionException{
-        for (int i = 0; i < Direction.values().length; i++){
-            if (rc.canBuildRobot(type, Direction.values()[i]) == true){
-                return Direction.values()[i];
+        for (int i = 0; i < Data.directions.length; i++){
+            if (rc.canBuildRobot(type, Data.directions[i]) == true){
+                return Data.directions[i];
             }
         }
     return Direction.CENTER;
