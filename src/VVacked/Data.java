@@ -17,6 +17,13 @@ public class Data {
         Direction.NORTHWEST,
     };
 
-    public static Direction spawnDir = Direction.CENTER;
+    public static final Direction[] Cardinaldirections = {
+        Direction.NORTHEAST,
+        Direction.SOUTHEAST,
+        Direction.SOUTHWEST,
+        Direction.NORTHWEST,
+    };
+
+    public static Direction moveDir = Direction.CENTER;
     
 }

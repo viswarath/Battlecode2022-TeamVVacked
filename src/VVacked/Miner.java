@@ -9,9 +9,10 @@ public class Miner {
         //current MapLocation
         MapLocation loc = rc.getLocation();
 
-        if (rc.canMove(Data.spawnDir)){
-            rc.move(Data.spawnDir);
+        while (rc.canMove(Data.moveDir) == false){
+            Data.moveDir = Data.moveDir.rotateRight();
         }
+        rc.move(Data.moveDir);
 
     }
 
@@ -20,7 +21,7 @@ public class Miner {
             for (RobotInfo robot : robots){
                 if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.ARCHON){
                     MapLocation base = robot.getLocation();
-                    Data.spawnDir = base.directionTo(rc.getLocation());
+                    Data.moveDir = base.directionTo(rc.getLocation());
                 }
         }
     }
