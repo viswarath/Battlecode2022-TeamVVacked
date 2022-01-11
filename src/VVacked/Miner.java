@@ -13,14 +13,16 @@ public class Miner {
             MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
             for (MapLocation loc : leadLocations){
                 if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
-                    RobotInfo[] robots = rc.senseNearbyRobots();
-                    int five = 5;
+                    rc.move(rc.getLocation().directionTo(loc));
+                    if (rc.canMineLead(loc)){
+                        rc.mineLead(loc);
+                    }
                 }
             }
         }
 
-        if (rc.canMove(move) && !foundLeadLocation){
-            rc.move(move);
+        if (rc.canMove(Data.moveDir) && !foundLeadLocation){
+            rc.move(Data.moveDir);
         }
     }
 
