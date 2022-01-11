@@ -3,6 +3,7 @@ package VVacked;
 import battlecode.common.*;
 import java.util.Random;
 
+
 /**
  * RobotPlayer is the class that describes your main robot strategy.
  * The run() method inside this class is like your main function: this is what we'll call once your robot
@@ -26,24 +27,12 @@ public strictfp class RobotPlayer {
 
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
-
-        // Hello world! Standard output is very useful for debugging.
-        // Everything you say here will be directly viewable in your terminal when you run a match!
-        System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
-
-        // You can also use indicators to save debug notes in replays.
-        rc.setIndicatorString("Hello world!");
-
-        // The same run() function is called for every robot on your team, even if they are
-        // different types. Here, we separate the control depending on the RobotType, so we can
-        // use different strategies on different robots. If you wish, you are free to rewrite
-        // this into a different control structure!
         switch (rc.getType()) {
             case ARCHON:     //Archon.init(rc);  break;
             case MINER:      Miner.init(rc);   break;
             case SOLDIER:    //Soldier.init(rc); break;
-            case LABORATORY: //Laboratory.init(rc); break;// Examplefuncsplayer doesn't use any of these robot types below.
-            case WATCHTOWER: //Watchtower.init(rc); break;// You might want to give them a try!
+            case LABORATORY: //Laboratory.init(rc); break;
+            case WATCHTOWER: //Watchtower.init(rc); break;
             case BUILDER:    //Builder.init(rc); break;
             case SAGE:       //Sage.init(rc); break;
             default:
@@ -52,12 +41,8 @@ public strictfp class RobotPlayer {
         
 
         while (true) {
-            // This code runs during the entire lifespan of the robot, which is why it is in an infinite
-            // loop. If we ever leave this loop and return from run(), the robot dies! At the end of the
-            // loop, we call Clock.yield(), signifying that we've done everything we want to do.
 
-            turnCount += 1;  // We have now been alive for one more turn!
-            System.out.println("Age: " + turnCount + "; Location: " + rc.getLocation());
+            turnCount += 1;
 
             try {
                 switch (rc.getType()) {
@@ -91,7 +76,5 @@ public strictfp class RobotPlayer {
             }
             // End of loop: go back to the top. Clock.yield() has ended, so it's time for another turn!
         }
-
-        // Your code should never reach here (unless it's intentional)! Self-destruction imminent...
     }
 }
