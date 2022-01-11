@@ -17,6 +17,9 @@ public class Miner {
                     if (rc.canMineLead(loc)){
                         rc.mineLead(loc);
                     }
+                    if (rc.getLocation() == loc){
+                        foundLeadLocation = true;
+                    }
                 }
             }
         }
