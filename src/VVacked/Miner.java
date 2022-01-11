@@ -30,8 +30,9 @@ public class Miner {
         MapLocation loc = rc.getLocation();
 
         for(RobotInfo robot: robots){
-            if (robot.getType() = RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
-
+            if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
+                MapLocation base = robot.getLocation();
+                Data.moveDir = base.directionTo(loc);
             }
         }
     }
