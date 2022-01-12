@@ -1,5 +1,6 @@
 package VVacked;
 
+
 import battlecode.common.*;
 
 public class Pathfinding {
