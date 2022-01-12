@@ -17,6 +17,8 @@ public class Archon {
             if (minersSpawned < 16){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
+            } else{
+                rc.buildRobot(RobotType.MINER, build);
             }
             directionIndex+=1;
             if (directionIndex == Data.directions.length){

@@ -7,17 +7,11 @@ public class Miner {
     public static Direction move = Direction.CENTER;
     public static boolean foundLeadLocation = false;
     public static MapLocation targetLocation;
-    //public static boolean closeMiner = false;
     public static boolean reverseMiner = false;
     public static int directionIndex = 0;
 
     public static void run(RobotController rc) throws GameActionException{
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
-        // if (closeMiner){
-        //     leadLocations = rc.senseNearbyLocationsWithLead(2);
-        // } else{
-        //     leadLocations = rc.senseNearbyLocationsWithLead();
-        // }
 
         if (reverseMiner){
             for(int i = 0; i < leadLocations.length / 2; i++)
@@ -59,6 +53,14 @@ public class Miner {
         }
 
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
+
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        for(RobotInfo robot: robots){
+            if (robot.getType() == RobotType.SOLDIER && robot.getTeam() != rc.getTeam()){
+
+            }
+        }
+
         if (rc.canSenseLocation(targetLocation)){
             while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
                 MapLocation me = rc.getLocation();
@@ -110,10 +112,6 @@ public class Miner {
         }
 
         int rand = Data.rng.nextInt(3);
-        // if (rand == 0){
-        //     closeMiner = true;
-        // }
-        rand = Data.rng.nextInt(3);
         if (baseLoc.x < rc.getMapWidth()/2.0){
             if (rand == 0){
                 reverseMiner = true;
