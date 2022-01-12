@@ -43,47 +43,51 @@ public class Miner {
             Direction[] facingArray = Pathfinding.getFacingArray(rc, directionIndex);
             forLoop:
             for (MapLocation loc : leadLocations){
-                if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
-                    for (Direction dir : facingArray){
-                        if (rc.getLocation().directionTo(loc) == dir){
-                            targetLocation = loc;
-                            System.out.println("(" + targetLocation.x + "' " + targetLocation.y + "), " + rc.getID());
-                            foundLeadLocation = true;
-                            break forLoop; 
-                        }
-                    }             
+                if (rc.canSenseLocation(loc)){
+                    if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
+                        for (Direction dir : facingArray){
+                            if (rc.getLocation().directionTo(loc) == dir){
+                                targetLocation = loc;
+                                System.out.println("(" + targetLocation.x + "' " + targetLocation.y + "), " + rc.getID());
+                                foundLeadLocation = true;
+                                break forLoop; 
+                            }
+                        }             
+                    }
                 }
             }
         }
 
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
-        while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
-            MapLocation me = rc.getLocation();
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                    // Notice that the Miner's action cooldown is very low.
-                    // You can mine multiple times per turn!
-                    while (rc.canMineGold(mineLocation)) {
-                        rc.mineGold(mineLocation);
-                    }
-                    while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
-                        rc.mineLead(mineLocation);
+        if (rc.canSenseLocation(targetLocation)){
+            while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
+                MapLocation me = rc.getLocation();
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
+                        // Notice that the Miner's action cooldown is very low.
+                        // You can mine multiple times per turn!
+                        while (rc.canMineGold(mineLocation)) {
+                            rc.mineGold(mineLocation);
+                        }
+                        while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                            rc.mineLead(mineLocation);
+                        }
                     }
                 }
+                if (rc.senseLead(targetLocation) < 2){
+                    foundLeadLocation = false;
+                }
             }
-            if (rc.senseLead(targetLocation) < 2){
-                foundLeadLocation = false;
-            }
-        }
-        if (rc.canSenseLocation(targetLocation)){
             if (rc.canMove(dir) && foundLeadLocation && !rc.getLocation().isAdjacentTo(targetLocation)){
                 rc.move(dir);   
-            } else if (rc.senseLead(targetLocation) < 2 && rc.canMove(move)){
-                rc.move(Pathfinding.getSemiRandomDir(rc, directionIndex));
             }
         } else{
             foundLeadLocation = false;
+        }
+
+        if (!foundLeadLocation){
+            rc.move(Pathfinding.getSemiRandomDir(rc, directionIndex));
         }
     }
 
