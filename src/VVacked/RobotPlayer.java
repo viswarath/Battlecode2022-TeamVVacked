@@ -23,12 +23,11 @@ public strictfp class RobotPlayer {
      * You can use static variables like this to save any information you want. Keep in mind that even though
      * these variables are static, in Battlecode they aren't actually shared between your robots.
      */
-    static int turnCount = 0;
 
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
         switch (rc.getType()) {
-            case ARCHON:     //Archon.init(rc);  break;
+            case ARCHON:     Archon.init(rc);  break;
             case MINER:      Miner.init(rc);   break;
             case SOLDIER:    Soldier.init(rc); break;
             case LABORATORY: //Laboratory.init(rc); break;
@@ -42,7 +41,7 @@ public strictfp class RobotPlayer {
 
         while (true) {
 
-            turnCount += 1;
+            Data.turnCount += 1;
 
             try {
                 switch (rc.getType()) {
