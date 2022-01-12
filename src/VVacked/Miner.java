@@ -7,7 +7,7 @@ public class Miner {
     public static Direction move = Direction.CENTER;
     public static boolean foundLeadLocation = false;
     public static MapLocation targetLocation;
-    public static boolean closeMiner = false;
+    //public static boolean closeMiner = false;
     public static boolean reverseMiner = false;
     public static int directionIndex = 0;
 
@@ -106,9 +106,9 @@ public class Miner {
         }
 
         int rand = Data.rng.nextInt(3);
-        if (rand == 0){
-            closeMiner = true;
-        }
+        // if (rand == 0){
+        //     closeMiner = true;
+        // }
         rand = Data.rng.nextInt(3);
         if (baseLoc.x < rc.getMapWidth()/2.0){
             if (rand == 0){
