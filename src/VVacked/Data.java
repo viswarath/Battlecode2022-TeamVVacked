@@ -6,7 +6,7 @@ import battlecode.common.*;
 import java.util.Random;
 
 public class Data {
-    public static int turnCount = 1;
+    public static int turnCount = 0;
     static final Random rng = new Random(6147);
     public static final Direction[] directions = {
         Direction.NORTH,

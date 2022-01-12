@@ -9,32 +9,36 @@ public class Miner {
     public static MapLocation targetLocation;
 
     public static void run(RobotController rc) throws GameActionException{
-        MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(3);
+        MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
+
         if (!foundLeadLocation){
             forLoop:
             for (MapLocation loc : leadLocations){
                 if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
                     targetLocation = loc;
-                    break forLoop;
+                    foundLeadLocation = true;
+                    break forLoop;              
                 }
             }
         }
 
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
-        if (rc.canMineLead(targetLocation)){
-            foundLeadLocation = true;
-            if (rc.senseLead(targetLocation) < 2){
+        if (rc.canMineLead(targetLocation) && rc.senseLead(targetLocation) > 1){
+            while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
                 foundLeadLocation = false;
-            } else {
-                while (rc.canMineLead(targetLocation)){
-                    rc.mineLead(targetLocation);
-                }
+                rc.mineLead(targetLocation);
             }
-        } else if (rc.canMove(dir)){
+        } else if (rc.canMove(dir) && foundLeadLocation){
             rc.move(dir);   
         } 
         else if (rc.canMove(move)){
-            rc.move(move);
+            forLoop:
+            for (int i = 0; i < Data.directions.length; i++){
+                if (Data.directions[i] == move){
+                    rc.move(Pathfinding.getSemiRandomDir(rc, i+1));
+                    break forLoop;
+                }
+            }
         }
     }
 

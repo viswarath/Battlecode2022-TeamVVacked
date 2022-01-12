@@ -1,6 +1,5 @@
 package VVacked;
 
-
 import battlecode.common.*;
 
 public class Pathfinding {
@@ -43,6 +42,69 @@ public class Pathfinding {
                     return attemptDir;
                 }
             }
+        }
+        return Direction.CENTER;
+    }
+
+    public static Direction getSemiRandomDir(RobotController rc, int baseDir) throws GameActionException {
+        int num = Data.rng.nextInt(3);
+        switch (baseDir) {
+            case 1:
+                if (num==1)
+                    return Direction.NORTHWEST;
+                else if (num==2)
+                    return Direction.NORTH;
+                else 
+                    return Direction.NORTHEAST;
+            case 2:
+                if (num==1)
+                    return Direction.NORTH;
+                else if (num==2)
+                    return Direction.NORTHEAST;
+                else 
+                    return Direction.EAST;
+            case 3:
+                if (num==1)
+                    return Direction.NORTHEAST;
+                else if (num==2)
+                    return Direction.EAST;
+                else 
+                    return Direction.SOUTHEAST;
+            case 4:
+                if (num==1)
+                    return Direction.EAST;
+                else if (num==2)
+                    return Direction.SOUTHEAST;
+                else 
+                    return Direction.SOUTH;
+            case 5:               
+                if (num==1)
+                    return Direction.SOUTHEAST;
+                else if (num==2)
+                    return Direction.SOUTH;
+                else 
+                    return Direction.SOUTHWEST;
+            case 6:
+                if (num==1)
+                    return Direction.SOUTH;
+                else if (num==2)
+                    return Direction.SOUTHWEST;
+                else 
+                    return Direction.WEST;
+            case 7:
+                if (num==1)
+                    return Direction.SOUTHWEST;
+                else if (num==2)
+                    return Direction.WEST;
+                else 
+                    return Direction.NORTHWEST;
+            case 8:
+                if (num==1)
+                    return Direction.WEST;
+                else if (num==2)
+                    return Direction.NORTHWEST;
+                else 
+                    return Direction.NORTH;
         }
         return Direction.CENTER;
     }
