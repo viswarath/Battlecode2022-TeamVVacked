@@ -11,6 +11,10 @@ public class Miner {
     public static void run(RobotController rc) throws GameActionException{
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
 
+        if (!rc.onTheMap(rc.getLocation().add(move))) {
+            move = move.opposite().rotateRight();
+        }
+        
         if (!foundLeadLocation){
             forLoop:
             for (MapLocation loc : leadLocations){
