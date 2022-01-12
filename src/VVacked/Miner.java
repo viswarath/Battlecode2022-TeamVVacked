@@ -7,12 +7,17 @@ public class Miner {
     public static Direction move = Direction.CENTER;
     public static boolean foundLeadLocation = false;
     public static MapLocation targetLocation;
+
+    //miner that reads from the lead loacation array in reverse order
     public static boolean reverseMiner = false;
+
+    //index of move variable in Data.directions[]
     public static int directionIndex = 0;
 
     public static void run(RobotController rc) throws GameActionException{
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
 
+        //reverses lead locations array if miner is a reverse miner
         if (reverseMiner){
             for(int i = 0; i < leadLocations.length / 2; i++)
             {
@@ -22,6 +27,7 @@ public class Miner {
             }
         }
         
+        //turns around and to the right if add the edge of the map
         if (!rc.onTheMap(rc.getLocation().add(move))) {
             move = move.opposite().rotateRight();
             forLoop:
@@ -33,6 +39,7 @@ public class Miner {
             }
         }
 
+        //finds a lead location to target for mining if one is not already found
         if (!foundLeadLocation){
             Direction[] facingArray = Pathfinding.getFacingArray(rc, directionIndex);
             forLoop:
@@ -52,8 +59,10 @@ public class Miner {
             }
         }
 
+        //pathfinds a direction to the target location
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
 
+        //if enemy robot nearby then run away and reset lead location target
         RobotInfo[] robots = rc.senseNearbyRobots();
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.SOLDIER && robot.getTeam() != rc.getTeam()){
@@ -61,7 +70,9 @@ public class Miner {
             }
         }
 
+        //mines lead or moves towards target
         if (rc.canSenseLocation(targetLocation)){
+            //mines until it cannot mine anymore spaces around it
             while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
                 MapLocation me = rc.getLocation();
                 for (int dx = -1; dx <= 1; dx++) {
@@ -81,6 +92,7 @@ public class Miner {
                     foundLeadLocation = false;
                 }
             }
+            //if not adjacent to target move towards the target
             if (rc.canMove(dir) && foundLeadLocation && !rc.getLocation().isAdjacentTo(targetLocation)){
                 rc.move(dir);   
             }
@@ -88,6 +100,7 @@ public class Miner {
             foundLeadLocation = false;
         }
 
+        //move in default location if no lead locations found
         if (!foundLeadLocation){
             rc.move(Pathfinding.getSemiRandomDir(rc, directionIndex));
         }
@@ -103,6 +116,7 @@ public class Miner {
 
         MapLocation baseLoc = rc.getLocation();
 
+        //find base and set move to away from base
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
                 MapLocation base = robot.getLocation();
@@ -111,6 +125,7 @@ public class Miner {
             }
         }
 
+        //choose whether to reverse targeting order for lead (favoring away from the corners for more mining)
         int rand = Data.rng.nextInt(3);
         if (baseLoc.x < rc.getMapWidth()/2.0){
             if (rand == 0){
@@ -122,6 +137,7 @@ public class Miner {
             }
         }
 
+        //set direction index
         forLoop:
         for (int i = 0; i < Data.directions.length; i++){
             if (Data.directions[i] == move){
