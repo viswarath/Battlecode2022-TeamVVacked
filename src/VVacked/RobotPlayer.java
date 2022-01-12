@@ -27,7 +27,7 @@ public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
         switch (rc.getType()) {
-            case ARCHON:     Archon.init(rc);  break;
+            case ARCHON:     //Archon.init(rc);  break;
             case MINER:      Miner.init(rc);   break;
             case SOLDIER:    //Soldier.init(rc); break;
             case LABORATORY: //Laboratory.init(rc); break;
