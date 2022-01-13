@@ -133,6 +133,8 @@ public class Soldier {
             if (rc.readSharedArray(i) == 0 && rc.readSharedArray(i) != intLocation){
                 rc.writeSharedArray(i, intLocation);
                 break forLoop;
+            } else if (rc.readSharedArray(i) == intLocation){
+                break forLoop;
             }
         }
     }   
@@ -156,9 +158,12 @@ public class Soldier {
                 }
 
                 if (!rc.canSenseRobotAtLocation(enemyLoc)){
+                    System.out.println("\n\n\nENEMY ARCHON DIED\n\n\n");
+                    System.out.println(rc.readSharedArray(12));
+                    System.out.println(rc.readSharedArray(13));
+                    System.out.println(rc.readSharedArray(14));
+                    System.out.println(rc.readSharedArray(15));
                     //enemy archon died
-                    targetingArchon = false;
-                    enemyArchonNearby = false;
                     if (rc.readSharedArray(currentArchonIndex0) != 0){
                         rc.writeSharedArray(currentArchonIndex0, 0);
                     }
