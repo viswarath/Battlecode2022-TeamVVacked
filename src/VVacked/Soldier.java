@@ -5,7 +5,8 @@ import battlecode.common.*;
 public class Soldier {
 
     public static MapLocation currentTarget; //current scouting target from 0-11 in shared array
-    public static int currentArchonIndex; //index of current target in shared array from 0-11
+    public static int currentArchonIndex0; //index of current target in shared array from 0-11
+    public static int currentArchonIndex12; //index of attackTarget in shared array from 12-15
     public static boolean archonsFound = false; //have all archons been found
 
     public static boolean targetingArchon = false; //is soldier targeting an enemy archon
@@ -14,10 +15,18 @@ public class Soldier {
 
     public static void run(RobotController rc) throws GameActionException{
         setTargetArchon(rc);
+        System.out.println(currentTarget);
 
         //archons found are put in these spots, dead archons have value of 9999
         if (rc.readSharedArray(12) != 0 && rc.readSharedArray(13) != 0 && rc.readSharedArray(14) != 0 && rc.readSharedArray(15) != 0){
             archonsFound = true;
+        }
+
+        //if targeted archon is dead then untarget
+        if (rc.readSharedArray(currentArchonIndex12) == 9999){
+            targetingArchon = false;
+            enemyArchonNearby = false;
+            System.out.println("SET TO FALSE");
         }
 
         //if all archons have not been found it searches for nearby enemy archons and adds to 12-15
@@ -34,9 +43,19 @@ public class Soldier {
         if (!targetingArchon){
             forLoop:
             for (int i = 12; i < 16; i++){
-                if (rc.readSharedArray(i) != 0){
-                    attackTarget = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
+                if (rc.readSharedArray(i) != 0 && rc.readSharedArray(i) != 9999){
+                    MapLocation loc = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
+                    attackTarget = loc;
+                    currentArchonIndex12 = i;
+                    forLoop2:
+                    for (int j = 0; j < 12; j++){
+                        if (loc == Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(j))){
+                            currentArchonIndex0 = j;
+                            break forLoop2;
+                        }
+                    }
                     targetingArchon = true;
+                    System.out.print("SET TO TRUE");
                     break forLoop;
                 }
             }
@@ -52,8 +71,8 @@ public class Soldier {
                     //attack archon if able
                     attackAndCheckArchon(rc);
                 } else{ //no archon at point so change shared array index of target to 0
-                    if (rc.readSharedArray(currentArchonIndex) != 0){
-                        rc.writeSharedArray(currentArchonIndex, 0);
+                    if (rc.readSharedArray(currentArchonIndex0) != 0){
+                        rc.writeSharedArray(currentArchonIndex0, 0);
                     }
                 }
             }
@@ -76,8 +95,10 @@ public class Soldier {
         //moves towards either found archon or guessed location of archon
         Direction dir = Direction.CENTER;
         if (!targetingArchon){
+            System.out.println("SCOUTING");
             dir = Pathfinding.basicMove(rc, currentTarget);
         } else{
+            System.out.println("ATTACKING");
             dir = Pathfinding.basicMove(rc, attackTarget);
         }
 
@@ -93,10 +114,10 @@ public class Soldier {
             if (rc.readSharedArray(i) != 0){
                 MapLocation loc = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
                 if (closest == null){
-                    currentArchonIndex = i;
+                    currentArchonIndex0 = i;
                     closest = loc;
                 } else if (rc.getLocation().distanceSquaredTo(loc) < rc.getLocation().distanceSquaredTo(closest)){
-                    currentArchonIndex = i;
+                    currentArchonIndex0 = i;
                     closest = loc;
                 }
             }
@@ -109,7 +130,7 @@ public class Soldier {
         int intLocation = loc.x*100 + loc.y;
         forLoop:
         for (int i = 12; i < 16; i++){
-            if (rc.readSharedArray(i) == 0){
+            if (rc.readSharedArray(i) == 0 && rc.readSharedArray(i) != intLocation){
                 rc.writeSharedArray(i, intLocation);
                 break forLoop;
             }
@@ -138,6 +159,12 @@ public class Soldier {
                     //enemy archon died
                     targetingArchon = false;
                     enemyArchonNearby = false;
+                    if (rc.readSharedArray(currentArchonIndex0) != 0){
+                        rc.writeSharedArray(currentArchonIndex0, 0);
+                    }
+                    if (rc.readSharedArray(currentArchonIndex12) != 9999){
+                        rc.writeSharedArray(currentArchonIndex12, 9999);
+                    }
                 }
 
                 if (!archonLocationsCorrect){
