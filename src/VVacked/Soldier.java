@@ -17,15 +17,9 @@ public class Soldier {
 
         if (!archonsFound){
             RobotInfo[] robots = rc.senseNearbyRobots();
-            forLoop:
             for (RobotInfo robot : robots){
                 if (robot.type == RobotType.ARCHON && robot.team != rc.getTeam()){
-                    for (int i = 12; i < 16; i++){
-                        if (rc.readSharedArray(i) == 0){
-                            rc.writeSharedArray(i, robot.getLocation().x*100 + robot.getLocation().y);
-                            break forLoop;
-                        }
-                    }
+                    addArchonToSharedArray(rc, robot.getLocation());
                 }
             }
         } 
@@ -34,7 +28,7 @@ public class Soldier {
             if (rc.canSenseRobotAtLocation(currentTarget)){
                 if (rc.senseRobotAtLocation(currentTarget).type == RobotType.ARCHON && rc.senseRobotAtLocation(currentTarget).team != rc.getTeam()){
                     if (!archonsFound){
-                        addArchonToSharedArray(rc);
+                        addArchonToSharedArray(rc, currentTarget);
                     }
                     if (rc.canAttack(currentTarget)){
                         rc.attack(currentTarget);
@@ -44,6 +38,7 @@ public class Soldier {
         }
 
         Direction dir = Pathfinding.basicMove(rc, currentTarget);
+        System.out.println(dir + " -- " + currentTarget.x + ", " + currentTarget.y);
         if (dir != Direction.CENTER){
             rc.move(dir);
         }
@@ -64,20 +59,14 @@ public class Soldier {
         currentTarget = closest;
     }
 
-    public static void addArchonToSharedArray(RobotController rc) throws GameActionException{
-        int intLocation = currentTarget.x*100 + currentTarget.y;
-        if (rc.readSharedArray(12) == 0){
-            rc.writeSharedArray(12, intLocation);
-        } else if (rc.readSharedArray(13) == 0){
-            rc.writeSharedArray(13, intLocation);
-        } else if (rc.readSharedArray(14) == 0){
-            rc.writeSharedArray(14, intLocation);
-        } else{
-            rc.writeSharedArray(15, intLocation);
+    public static void addArchonToSharedArray(RobotController rc, MapLocation loc) throws GameActionException{
+        int intLocation = loc.x*100 + loc.y;
+        forLoop:
+        for (int i = 12; i < 16; i++){
+            if (rc.readSharedArray(i) == 0){
+                rc.writeSharedArray(i, intLocation);
+                break forLoop;
+            }
         }
-    }
-    
-    public static void init(RobotController rc) throws GameActionException{
-
-    }   
+    }    
 }
