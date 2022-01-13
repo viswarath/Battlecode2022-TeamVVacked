@@ -16,19 +16,6 @@ public class Archon {
     public static int nearbyLeadLocations = 0;
     
     public static void run(RobotController rc) throws GameActionException{
-        if (enemyArchonNearby){
-            forLoop:
-            for(int i = 0; i < 12; i++){
-                if (nearbyEnemyArchonLocation == Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i))){
-                    for (int j = 12; j < 16; j++){
-                        if (rc.readSharedArray(j) == 0){
-                            rc.writeSharedArray(j, nearbyLeadLocations);
-                            break forLoop;
-                        }
-                    }
-                }
-            }
-        }
 
         Direction build = Direction.CENTER;
 
@@ -129,6 +116,21 @@ public class Archon {
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() != rc.getTeam()){
                 enemyArchonNearby = true;
                 nearbyEnemyArchonLocation = robot.getLocation();
+            }
+        }
+
+        if (enemyArchonNearby){
+            forLoop:
+            for(int i = 0; i < 12; i++){
+                if (nearbyEnemyArchonLocation == Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i))){
+                    for (int j = 12; j < 16; j++){
+                        if (rc.readSharedArray(j) == 0){
+                            int loc = nearbyEnemyArchonLocation.x*100 + nearbyEnemyArchonLocation.y;
+                            rc.writeSharedArray(j, loc);
+                            break forLoop;
+                        }
+                    }
+                }
             }
         }
 
