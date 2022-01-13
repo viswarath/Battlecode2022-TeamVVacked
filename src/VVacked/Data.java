@@ -27,5 +27,11 @@ public class Data {
     };
 
     public static Direction moveDir = Direction.CENTER;
+
+    public static MapLocation readMapLocationFromSharedArray(RobotController rc, int intLocation) throws GameActionException{
+        int y = intLocation%100;
+        int x = intLocation/100;
+        return new MapLocation(x, y);
+    }
     
 }

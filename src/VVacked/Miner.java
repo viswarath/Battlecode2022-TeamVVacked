@@ -5,8 +5,11 @@ import battlecode.common.*;
 public class Miner {
     //direction of movement
     public static Direction move = Direction.CENTER;
+
+    //important locations
     public static boolean foundLeadLocation = false;
     public static MapLocation targetLocation;
+    public static MapLocation[] enemyArchons = new MapLocation[4];
 
     //miner that reads from the lead loacation array in reverse order
     public static boolean reverseMiner = false;
