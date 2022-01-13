@@ -17,7 +17,11 @@ public class Archon {
     public static void run(RobotController rc) throws GameActionException{
         Direction build = Direction.CENTER;
 
-        //delete nearby locations
+        /**
+         * delete nearby guessed locations in the shared array
+         * different from checking around for enemy locations this takes less precendence
+         * can only take place on round two because the archons need the 1st round to input guessed locations
+        **/
         if (rc.getRoundNum() == 2){
             MapLocation check = null;
             for (int i = 0;i < 12; i++){
