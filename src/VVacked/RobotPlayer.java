@@ -48,7 +48,7 @@ public strictfp class RobotPlayer {
 
                     case ARCHON:        Archon.run(rc);         break;
                     case MINER:         Miner.run(rc);          break;
-                    case SOLDIER:       //Soldier.run(rc);        break;
+                    case SOLDIER:       Soldier.run(rc);        break;
                     case LABORATORY:    //Laboratory.run(rc);     break;
                     case WATCHTOWER:    //Watchtower.run(rc);     break;
                     case BUILDER:      // Builder.run(rc);        break;

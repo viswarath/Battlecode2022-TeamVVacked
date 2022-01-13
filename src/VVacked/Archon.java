@@ -100,8 +100,8 @@ public class Archon {
     }
 
     public static void addPossibleEnemyArchonLocations(RobotController rc, int buffer) throws GameActionException{
-        int reflectedX = rc.getMapWidth() - rc.getLocation().x;
-        int reflectedY = rc.getMapHeight() - rc.getLocation().y;          
+        int reflectedX = (rc.getMapWidth()-1) - rc.getLocation().x;
+        int reflectedY = (rc.getMapHeight()-1) - rc.getLocation().y;          
         rc.writeSharedArray(0 + buffer, reflectedX*100 + rc.getLocation().y);
         rc.writeSharedArray(1 + buffer, rc.getLocation().x + reflectedY);
         rc.writeSharedArray(2 + buffer, reflectedX*100 + reflectedY);
