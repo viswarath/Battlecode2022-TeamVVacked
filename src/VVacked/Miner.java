@@ -40,6 +40,7 @@ public class Miner {
         }
 
         //finds a lead location to target for mining if one is not already found
+        MapLocation prioritizedTarget = null;
         if (!foundLeadLocation){
             Direction[] facingArray = Pathfinding.getFacingArray(rc, directionIndex);
             forLoop:
@@ -48,16 +49,21 @@ public class Miner {
                     if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
                         for (Direction dir : facingArray){
                             if (rc.getLocation().directionTo(loc) == dir){
-                                targetLocation = loc;
+                                prioritizedTarget = loc;
                                 System.out.println("(" + targetLocation.x + "' " + targetLocation.y + "), " + rc.getID());
                                 foundLeadLocation = true;
                                 break forLoop; 
+                            } else{
+                                targetLocation = loc;
                             }
-                        }             
+                        }        
                     }
                 }
             }
         }
+        if (prioritizedTarget != null){
+            targetLocation = prioritizedTarget;
+        }   
 
         //pathfinds a direction to the target location
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
@@ -66,7 +72,10 @@ public class Miner {
         RobotInfo[] robots = rc.senseNearbyRobots();
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.SOLDIER && robot.getTeam() != rc.getTeam()){
-
+                if (rc.canMove(rc.getLocation().directionTo(robot.location).opposite())){
+                    rc.move(rc.getLocation().directionTo(robot.location).opposite());
+                    foundLeadLocation = false;
+                }
             }
         }
 
