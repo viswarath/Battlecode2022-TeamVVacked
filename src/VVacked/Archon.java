@@ -71,6 +71,14 @@ public class Archon {
         return getRadialSpawnDir(rc, RobotType.MINER);
     }
 
+    public static void addPossibleEnemyArchonLocations(RobotController rc, int buffer) throws GameActionException{
+        int reflectedX = (rc.getMapWidth()-1) - rc.getLocation().x;
+        int reflectedY = (rc.getMapHeight()-1) - rc.getLocation().y;          
+        rc.writeSharedArray(0 + buffer, reflectedX*100 + rc.getLocation().y);
+        rc.writeSharedArray(1 + buffer, rc.getLocation().x + reflectedY);
+        rc.writeSharedArray(2 + buffer, reflectedX*100 + reflectedY);
+    }
+
     public static void init(RobotController rc) throws GameActionException{
         nearbyLeadLocations = rc.senseNearbyLocationsWithLead().length;
         firstMinerPhaseEnd = nearbyLeadLocations + defaultMinerNumber;
@@ -98,6 +106,7 @@ public class Archon {
             addPossibleEnemyArchonLocations(rc, 9);
         }
     }
+<<<<<<< HEAD
 
     public static void addPossibleEnemyArchonLocations(RobotController rc, int buffer) throws GameActionException{
         int reflectedX = rc.getMapWidth() - 1 - rc.getLocation().x;
@@ -106,6 +115,8 @@ public class Archon {
         rc.writeSharedArray(1 + buffer, rc.getLocation().x + reflectedY);
         rc.writeSharedArray(2 + buffer, reflectedX*100 + reflectedY);
     }
+=======
+>>>>>>> 93039db6203b655abdf98c6d910ff2731a942d51
 }
 
 
