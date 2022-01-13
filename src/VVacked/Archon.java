@@ -49,10 +49,10 @@ public class Archon {
             build = getRadialSpawnDir(rc, RobotType.SOLDIER);
         }
         if (build != Direction.CENTER){
-            if (minersSpawned < 16){
+            if (minersSpawned < 16 && rc.canBuildRobot(RobotType.MINER, build)){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
-            } else{
+            } else if(rc.canBuildRobot(RobotType.SOLDIER, build)){
                 rc.buildRobot(RobotType.SOLDIER, build);
             }
             radialDirectionIndex+=1;
@@ -148,10 +148,13 @@ public class Archon {
         } else{
             addPossibleEnemyArchonLocations(rc, 9);
         }
+        /**
+         * print to check guessed locations!
         System.out.print(rc.getID());
         for(int i = 0;i <12; i++){
             System.out.print("( " +rc.readSharedArray(i) + " )");
         }
+        **/
     }
 }
 
