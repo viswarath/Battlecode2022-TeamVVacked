@@ -9,12 +9,27 @@ public class Archon {
     public static int minersSpawned = 0;
 
     public static boolean enemyArchonNearby = false;
+    public static MapLocation nearbyEnemyArchonLocation;
 
-    public static int defaultMinerNumber = 3;
+    public static int defaultMinerNumber = 2;
     public static int maxMinerSpawns = 16;
     public static int nearbyLeadLocations = 0;
     
     public static void run(RobotController rc) throws GameActionException{
+        if (enemyArchonNearby){
+            forLoop:
+            for(int i = 0; i < 12; i++){
+                if (nearbyEnemyArchonLocation == Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i))){
+                    for (int j = 12; j < 16; j++){
+                        if (rc.readSharedArray(j) == 0){
+                            rc.writeSharedArray(j, nearbyLeadLocations);
+                            break forLoop;
+                        }
+                    }
+                }
+            }
+        }
+
         Direction build = Direction.CENTER;
 
         /**
@@ -113,6 +128,7 @@ public class Archon {
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() != rc.getTeam()){
                 enemyArchonNearby = true;
+                nearbyEnemyArchonLocation = robot.getLocation();
             }
         }
 

@@ -5,7 +5,11 @@ import battlecode.common.*;
 public class Soldier {
 
     public static MapLocation currentTarget;
+    public static int currentArchonIndex;
     public static boolean archonsFound = false;
+
+    public static boolean attackingArchon = false;
+    public static MapLocation attackTarget;
 
     public static void run(RobotController rc) throws GameActionException{
         setTargetArchon(rc);
@@ -13,6 +17,17 @@ public class Soldier {
         //archons found are put in these spots, dead archons have value of 9999
         if (rc.readSharedArray(12) != 0 && rc.readSharedArray(13) != 0 && rc.readSharedArray(14) != 0 && rc.readSharedArray(15) != 0){
             archonsFound = true;
+        }
+
+        if (!attackingArchon){
+            forLoop:
+            for (int i = 12; i < 16; i++){
+                if (rc.readSharedArray(i) != 0){
+                    attackTarget = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
+                    attackingArchon = true;
+                    break forLoop;
+                }
+            }
         }
 
         if (!archonsFound){
@@ -24,7 +39,7 @@ public class Soldier {
             }
         } 
 
-        if (rc.canSenseLocation(currentTarget)){
+        if (rc.canSenseLocation(currentTarget) && !attackingArchon){
             if (rc.canSenseRobotAtLocation(currentTarget)){
                 if (rc.senseRobotAtLocation(currentTarget).type == RobotType.ARCHON && rc.senseRobotAtLocation(currentTarget).team != rc.getTeam()){
                     if (!archonsFound){
@@ -32,6 +47,10 @@ public class Soldier {
                     }
                     if (rc.canAttack(currentTarget)){
                         rc.attack(currentTarget);
+                    }
+                } else{
+                    if (rc.readSharedArray(currentArchonIndex) != 0){
+                        rc.writeSharedArray(currentArchonIndex, 0);
                     }
                 }
             }
@@ -45,8 +64,13 @@ public class Soldier {
             }
         }
 
-        Direction dir = Pathfinding.basicMove(rc, currentTarget);
-        System.out.println(dir + " -- " + currentTarget.x + ", " + currentTarget.y);
+        Direction dir = Direction.CENTER;
+        if (!attackingArchon){
+            dir = Pathfinding.basicMove(rc, currentTarget);
+        } else{
+            dir = Pathfinding.basicMove(rc, attackTarget);
+        }
+
         if (dir != Direction.CENTER){
             rc.move(dir);
         }
@@ -58,8 +82,10 @@ public class Soldier {
             if (rc.readSharedArray(i) != 0){
                 MapLocation loc = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
                 if (closest == null){
+                    currentArchonIndex = i;
                     closest = loc;
                 } else if (rc.getLocation().distanceSquaredTo(loc) < rc.getLocation().distanceSquaredTo(closest)){
+                    currentArchonIndex = i;
                     closest = loc;
                 }
             }
