@@ -16,6 +16,23 @@ public class Archon {
     
     public static void run(RobotController rc) throws GameActionException{
         Direction build = Direction.CENTER;
+
+        //delete nearby locations
+        if (rc.getRoundNum() == 2){
+            MapLocation check = null;
+            for (int i = 0;i < 12; i++){
+                int intLoc = rc.readSharedArray(i);
+                if (intLoc != 0){
+                    check = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
+                    if(rc.canSenseLocation(check)){
+                        if(rc.canSenseRobotAtLocation(check) && rc.senseRobotAtLocation(check).getTeam() != rc.getTeam()){
+                            rc.writeSharedArray(i, 0);
+                        }
+                    }
+                }
+            }
+        }
+
         if (minersSpawned < 16){
             build = getMinerSpawnDir(rc);
         } else{
@@ -106,17 +123,6 @@ public class Archon {
             addPossibleEnemyArchonLocations(rc, 9);
         }
     }
-<<<<<<< HEAD
-
-    public static void addPossibleEnemyArchonLocations(RobotController rc, int buffer) throws GameActionException{
-        int reflectedX = rc.getMapWidth() - 1 - rc.getLocation().x;
-        int reflectedY = rc.getMapHeight() - 1 - rc.getLocation().y;
-        rc.writeSharedArray(0 + buffer, reflectedX*100 + rc.getLocation().y);
-        rc.writeSharedArray(1 + buffer, rc.getLocation().x + reflectedY);
-        rc.writeSharedArray(2 + buffer, reflectedX*100 + reflectedY);
-    }
-=======
->>>>>>> 93039db6203b655abdf98c6d910ff2731a942d51
 }
 
 
