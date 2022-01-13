@@ -43,13 +43,14 @@ public class Archon {
             }
         }
 
-        if (minersSpawned < 16){
+        if (minersSpawned < maxMinerSpawns){
             build = getMinerSpawnDir(rc);
+            System.out.print(build);
         } else{
             build = getRadialSpawnDir(rc, RobotType.SOLDIER);
         }
         if (build != Direction.CENTER){
-            if (minersSpawned < 16 && rc.canBuildRobot(RobotType.MINER, build)){
+            if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
             } else if(rc.canBuildRobot(RobotType.SOLDIER, build)){
@@ -63,22 +64,20 @@ public class Archon {
     }
 
     public static Direction getMinerSpawnDir(RobotController rc) throws GameActionException{
-        RobotType type = RobotType.MINER;
+        //RobotType type = RobotType.MINER;
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
-        int rand = Data.rng.nextInt(leadLocations.length);
-        for (int i = rand; i < Data.directions.length; i++){
-            if (rc.canBuildRobot(type, Data.directions[i]) == true){
-                return Data.directions[i];
-            }
-        }
-        if (rand != 0){
-            for (int i = 0; i < radialDirectionIndex; i++){
-                if (rc.canBuildRobot(type, Data.directions[i]) == true){
-                    return Data.directions[i];
+        MapLocation maxLeadLocation = null;
+        for (int i = 0; i < leadLocations.length; i++){
+            if (maxLeadLocation == null){
+                maxLeadLocation = leadLocations[i];
+            } else{
+                if (rc.senseLead(maxLeadLocation) < rc.senseLead(leadLocations[i])){
+                    maxLeadLocation = leadLocations[i];
                 }
             }
+            System.out.print(maxLeadLocation);
         }
-        return Direction.CENTER;
+        return Pathfinding.basicBuild(rc, maxLeadLocation, RobotType.MINER);
     }
 
 
@@ -108,6 +107,7 @@ public class Archon {
 
     public static void init(RobotController rc) throws GameActionException{
         nearbyLeadLocations = rc.senseNearbyLocationsWithLead().length;
+        maxMinerSpawns = nearbyLeadLocations + defaultMinerNumber;
         firstMinerPhaseEnd = nearbyLeadLocations + defaultMinerNumber;
         if (firstMinerPhaseEnd > maxMinerSpawns){
             firstMinerPhaseEnd = maxMinerSpawns;
