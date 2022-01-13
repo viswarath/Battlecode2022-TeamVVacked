@@ -37,11 +37,11 @@ public class Soldier {
     }
 
     public static void setTargetArchon(RobotController rc) throws GameActionException{
-        MapLocation closest;
+        MapLocation closest = null;
         for (int i = 0; i < 12; i++){
             if (rc.readSharedArray(i) != 0){
                 if (closest == null){
-                    closest = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i))
+                    closest = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
                 }
                 currentTarget = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
             }
