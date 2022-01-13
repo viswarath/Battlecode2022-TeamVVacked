@@ -9,6 +9,7 @@ public class Archon {
     public static int minersSpawned = 0;
 
     public static boolean enemyArchonNearby = false;
+    public static boolean checkedGuessedLocs = false;
     public static MapLocation nearbyEnemyArchonLocation;
 
     public static int defaultMinerNumber = 2;
@@ -22,9 +23,9 @@ public class Archon {
         /**
          * delete nearby guessed locations in the shared array
          * different from checking around for enemy locations this takes less precendence
-         * can only take place on round two because the archons need the 1st round to input guessed locations
+         * can only take place on round three because the archons need the second round to input guessed locations
         **/
-        if (rc.getRoundNum() == 2){
+        if (!checkedGuessedLocs && rc.getRoundNum() > 2){
             for (int i = 0;i < 12; i++){
                 MapLocation check = null;
                 int intLoc = rc.readSharedArray(i);
@@ -41,7 +42,15 @@ public class Archon {
                     } 
                 }
             }
+            checkedGuessedLocs = true;
+            //print to check updated locations
+            System.out.print(rc.getID());
+            for(int i = 0;i <12; i++){
+                System.out.print("( " +rc.readSharedArray(i) + " )");
+            }
         }
+
+        //print to check updated locations
 
         if (minersSpawned < 16){
             build = getMinerSpawnDir(rc);
