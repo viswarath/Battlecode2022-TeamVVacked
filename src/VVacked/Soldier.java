@@ -54,6 +54,14 @@ public class Soldier {
                     }
                 }
             }
+        } else{
+            if (rc.canSenseLocation(currentTarget)){
+                if (rc.canSenseRobotAtLocation(currentTarget)){
+                    if (rc.senseRobotAtLocation(currentTarget).type == RobotType.ARCHON && rc.senseRobotAtLocation(currentTarget).team != rc.getTeam()){
+                        
+                    }
+                }
+            }
         }
 
         Direction dir = Direction.CENTER;

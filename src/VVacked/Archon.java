@@ -31,6 +31,23 @@ public class Archon {
         }
 
         Direction build = Direction.CENTER;
+
+        //delete nearby locations
+        if (rc.getRoundNum() == 2){
+            MapLocation check = null;
+            for (int i = 0;i < 12; i++){
+                int intLoc = rc.readSharedArray(i);
+                if (intLoc != 0){
+                    check = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
+                    if(rc.canSenseLocation(check)){
+                        if(rc.canSenseRobotAtLocation(check) && rc.senseRobotAtLocation(check).getTeam() != rc.getTeam()){
+                            rc.writeSharedArray(i, 0);
+                        }
+                    }
+                }
+            }
+        }
+
         if (minersSpawned < 16){
             build = getMinerSpawnDir(rc);
         } else{

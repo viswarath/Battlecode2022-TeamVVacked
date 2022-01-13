@@ -8,6 +8,10 @@ import java.util.Random;
 public class Data {
     public static int turnCount = 0;
     static final Random rng = new Random(6147);
+
+    public static MapLocation baseLoc;
+    public static int totalNumArchon;
+
     public static final Direction[] directions = {
         Direction.NORTH,
         Direction.NORTHEAST,
@@ -33,5 +37,5 @@ public class Data {
         int x = intLocation/100;
         return new MapLocation(x, y);
     }
-    
+
 }
