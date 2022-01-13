@@ -92,7 +92,7 @@ public class Miner {
                         MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                         // Notice that the Miner's action cooldown is very low.
                         // You can mine multiple times per turn!
-                        while (rc.canMineGold(mineLocation)) {
+                        while (rc.canMineGold(mineLocation)){ //gold doesnt regen
                             rc.mineGold(mineLocation);
                         }
                         while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
@@ -114,7 +114,10 @@ public class Miner {
 
         //move in default location if no lead locations found
         if (!foundLeadLocation){
-            rc.move(Pathfinding.getSemiRandomDir(rc, directionIndex));
+            Direction move = Pathfinding.getSemiRandomDir(rc, directionIndex);
+            if (rc.canMove(move)){
+                rc.move(move);
+            }
         }
     }
 

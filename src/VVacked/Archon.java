@@ -19,18 +19,26 @@ public class Archon {
 
         Direction build = Direction.CENTER;
 
-        //delete nearby locations
+        /**
+         * delete nearby guessed locations in the shared array
+         * different from checking around for enemy locations this takes less precendence
+         * can only take place on round two because the archons need the 1st round to input guessed locations
+        **/
         if (rc.getRoundNum() == 2){
-            MapLocation check = null;
             for (int i = 0;i < 12; i++){
+                MapLocation check = null;
                 int intLoc = rc.readSharedArray(i);
                 if (intLoc != 0){
-                    check = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
+                    check = Data.readMapLocationFromSharedArray(rc, intLoc);
                     if(rc.canSenseLocation(check)){
-                        if(rc.canSenseRobotAtLocation(check) && rc.senseRobotAtLocation(check).getTeam() != rc.getTeam()){
+                        if(rc.canSenseRobotAtLocation(check)){
+                            if(rc.senseRobotAtLocation(check).getTeam() == rc.getTeam()){
+                                rc.writeSharedArray(i, 0);
+                            }
+                        } else{
                             rc.writeSharedArray(i, 0);
                         }
-                    }
+                    } 
                 }
             }
         }
@@ -41,10 +49,10 @@ public class Archon {
             build = getRadialSpawnDir(rc, RobotType.SOLDIER);
         }
         if (build != Direction.CENTER){
-            if (minersSpawned < 16){
+            if (minersSpawned < 16 && rc.canBuildRobot(RobotType.MINER, build)){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
-            } else{
+            } else if(rc.canBuildRobot(RobotType.SOLDIER, build)){
                 rc.buildRobot(RobotType.SOLDIER, build);
             }
             radialDirectionIndex+=1;
@@ -94,7 +102,7 @@ public class Archon {
         int reflectedX = (rc.getMapWidth()-1) - rc.getLocation().x;
         int reflectedY = (rc.getMapHeight()-1) - rc.getLocation().y;          
         rc.writeSharedArray(0 + buffer, reflectedX*100 + rc.getLocation().y);
-        rc.writeSharedArray(1 + buffer, rc.getLocation().x + reflectedY);
+        rc.writeSharedArray(1 + buffer, (rc.getLocation().x)*100 + reflectedY);
         rc.writeSharedArray(2 + buffer, reflectedX*100 + reflectedY);
     }
 
@@ -140,6 +148,13 @@ public class Archon {
         } else{
             addPossibleEnemyArchonLocations(rc, 9);
         }
+        /**
+         * print to check guessed locations!
+        System.out.print(rc.getID());
+        for(int i = 0;i <12; i++){
+            System.out.print("( " +rc.readSharedArray(i) + " )");
+        }
+        **/
     }
 }
 
