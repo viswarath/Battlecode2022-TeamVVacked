@@ -14,21 +14,32 @@ public class Soldier {
         Direction awayDir = baseLocation.directionTo(rc.getLocation());
         Direction toDir = awayDir.opposite();
         int distanceToBase = rc.getLocation().distanceSquaredTo(baseLocation);
+        MapLocation moveTo = null;
 
+        //setting the move location based on distance away from the movement ring
+        if(distanceToBase < innerRad){
+            moveTo = rc.getLocation().add(awayDir);
+        } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
+            moveTo = rc.getLocation().add(perpenDir);
+        } else if(distanceToBase > outerRad){
+            moveTo = rc.getLocation().add(toDir);
+        }
+
+        //setting the move location because of low health takes precedence!
         if (rc.getHealth() < 25){
             if(distanceToBase > healingRad){
-                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+                moveTo = rc.getLocation().add(toDir);
             }else if(distanceToBase <= healingRad){
-                rc.move(Pathfinding.basicMove(rc,rc.getLocation().add(perpenDir)));
-            }            
+                moveTo = rc.getLocation().add(perpenDir);
+            }       
         }
-        if(distanceToBase < innerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
-        } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
-        } else if(distanceToBase > outerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+
+        Direction temp = perpenDir;
+        while(rc.onTheMap(moveTo) == false){
+            moveTo = rc.getLocation().add(temp.rotateLeft());
         }
+        
+        rc.move(Pathfinding.basicMove(rc, moveTo));
 
         int maxHealth = 60;
 
