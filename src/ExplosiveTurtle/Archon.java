@@ -1,21 +1,23 @@
-package VVacked;
+package ExplosiveTurtle;
 
 import battlecode.common.*;
 
 public class Archon {
 
-    //public static int radialDirectionIndex = 0; //index to help spawn around in a circle
-    public static int minersSpawned = 0; //number of miners spawned
-    public static int robotsSpawned = 0; //number of robots spawned
-    public static int minerRatio = 3; //spawn miners every this number of soldiers
+    public static int radialDirectionIndex = 0;
+    public static int firstMinerPhaseEnd = 16;
+    public static int minersSpawned = 0;
 
     public static boolean enemyArchonNearby = false;
     public static boolean checkedGuessedLocs = false;
     public static MapLocation nearbyEnemyArchonLocation;
 
-    public static int defaultMinerNumber = 2; //minimum number of miners to spawn
-    public static int maxMinerSpawns = 11; //max number of miners to spawn
-    public static int nearbyLeadLocations = 0; //number of lead deposits nearby
+    public static int defaultMinerNumber = 2;
+    public static int maxMinerSpawns = 16;
+    public static int nearbyLeadLocations = 0;
+
+    public static int maxSoldierSpawns = 15;
+    public static int soldiersSpawned = 0;
     
     public static void run(RobotController rc) throws GameActionException{
 
@@ -53,36 +55,28 @@ public class Archon {
 
         if (minersSpawned < maxMinerSpawns){
             build = getMinerSpawnDir(rc);
-        } else{
-            if (robotsSpawned%minerRatio != 0){
-                build = getSoldierSpawnDir(rc);
-            } else{
-                build = getMinerSpawnDir(rc);
-            }
+            System.out.print(build);
+        } else if (soldiersSpawned < maxSoldierSpawns){
+            build = getRadialSpawnDir(rc, RobotType.SOLDIER);
         }
         if (build != Direction.CENTER){
             if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
             } else if(rc.canBuildRobot(RobotType.SOLDIER, build)){
-                if (robotsSpawned%minerRatio != 0){
-                    rc.buildRobot(RobotType.SOLDIER, build);
-                } else{
-                    rc.buildRobot(RobotType.MINER, build);
-                }
-                robotsSpawned+=1;
+                rc.buildRobot(RobotType.SOLDIER, build);
             }
-            //radialDirectionIndex+=1;
-            // if (radialDirectionIndex == Data.directions.length){
-            //     radialDirectionIndex = 0;
-            // }
+            radialDirectionIndex+=1;
+            if (radialDirectionIndex == Data.directions.length){
+                radialDirectionIndex = 0;
+            }
         }
     }
 
     public static Direction getMinerSpawnDir(RobotController rc) throws GameActionException{
         //RobotType type = RobotType.MINER;
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead();
-        MapLocation maxLeadLocation = new MapLocation(rc.getLocation().x+1, rc.getLocation().y);
+        MapLocation maxLeadLocation = null;
         for (int i = 0; i < leadLocations.length; i++){
             if (maxLeadLocation == null){
                 maxLeadLocation = leadLocations[i];
@@ -97,35 +91,20 @@ public class Archon {
     }
 
 
-    // public static Direction getRadialSpawnDir(RobotController rc, RobotType type) throws GameActionException{
-    //     for (int i = radialDirectionIndex; i < Data.directions.length; i++){
-    //         if (rc.canBuildRobot(type, Data.directions[i]) == true){
-    //             return Data.directions[i];
-    //         }
-    //     }
-    //     if (radialDirectionIndex != 0){
-    //         for (int i = 0; i < radialDirectionIndex; i++){
-    //             if (rc.canBuildRobot(type, Data.directions[i]) == true){
-    //                 return Data.directions[i];
-    //             }
-    //         }
-    //     }
-    //     return getRadialSpawnDir(rc, RobotType.MINER);
-    // }
-
-    public static Direction getSoldierSpawnDir(RobotController rc)throws GameActionException{
-        MapLocation closest = null;
-        for (int i = 0; i < 12; i++){
-            if (rc.readSharedArray(i) != 0){
-                MapLocation loc = Data.readMapLocationFromSharedArray(rc, rc.readSharedArray(i));
-                if (closest == null){
-                    closest = loc;
-                } else if (rc.getLocation().distanceSquaredTo(loc) < rc.getLocation().distanceSquaredTo(closest)){
-                    closest = loc;
+    public static Direction getRadialSpawnDir(RobotController rc, RobotType type) throws GameActionException{
+        for (int i = radialDirectionIndex; i < Data.directions.length; i++){
+            if (rc.canBuildRobot(type, Data.directions[i]) == true){
+                return Data.directions[i];
+            }
+        }
+        if (radialDirectionIndex != 0){
+            for (int i = 0; i < radialDirectionIndex; i++){
+                if (rc.canBuildRobot(type, Data.directions[i]) == true){
+                    return Data.directions[i];
                 }
             }
         }
-        return Pathfinding.basicBuild(rc, closest, RobotType.SOLDIER);
+        return getRadialSpawnDir(rc, RobotType.MINER);
     }
 
     public static void addPossibleEnemyArchonLocations(RobotController rc, int buffer) throws GameActionException{
@@ -138,9 +117,10 @@ public class Archon {
 
     public static void init(RobotController rc) throws GameActionException{
         nearbyLeadLocations = rc.senseNearbyLocationsWithLead().length;
-        int temp = nearbyLeadLocations + defaultMinerNumber;
-        if (temp < maxMinerSpawns){
-            maxMinerSpawns = temp;
+        maxMinerSpawns = nearbyLeadLocations + defaultMinerNumber;
+        firstMinerPhaseEnd = nearbyLeadLocations + defaultMinerNumber;
+        if (firstMinerPhaseEnd > maxMinerSpawns){
+            firstMinerPhaseEnd = maxMinerSpawns;
         }
 
         RobotInfo[] robots = rc.senseNearbyRobots();
