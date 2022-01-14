@@ -21,6 +21,8 @@ public class Archon {
     public static int soldiersInCircle = 15;
     public static boolean startCooldown = false;
     public static int lookForCircleCooldown = 2;
+
+    public static int leadBeforeBuild;
     
     public static void run(RobotController rc) throws GameActionException{
 
@@ -83,6 +85,13 @@ public class Archon {
             }
         }
 
+        //checks lead available
+        if (rc.getTeamLeadAmount(rc.getTeam()) > leadBeforeBuild){
+            rc.writeSharedArray(40, 1);
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 51){
+            rc.writeSharedArray(40, 0);
+        }
+
         if (minersSpawned < maxMinerSpawns){
             build = getMinerSpawnDir(rc);
         } else{
@@ -96,7 +105,7 @@ public class Archon {
             if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
-            } else if(rc.canBuildRobot(RobotType.SOLDIER, build)){
+            } else if(rc.readSharedArray(40) == 1){
                 if (robotsSpawned%minerRatio != 0){
                     rc.buildRobot(RobotType.SOLDIER, build);
                 } else{
@@ -226,6 +235,8 @@ public class Archon {
                 break forLoop;
             }
         }
+
+        leadBeforeBuild = 50*rc.getArchonCount();
     }
 }
 
