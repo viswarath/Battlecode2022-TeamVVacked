@@ -68,11 +68,18 @@ public class Miner {
             targetLocation = prioritizedTarget;
         }   
 
+        //checks for nearby enemy archons and adds if it sees them
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        for (RobotInfo robot : robots){
+            if (robot.type == RobotType.ARCHON && robot.team != rc.getTeam()){
+                addArchonToSharedArray(rc, robot.getLocation());
+            }
+        }
+
         //pathfinds a direction to the target location
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
 
         //if enemy robot nearby then run away and reset lead location target
-        RobotInfo[] robots = rc.senseNearbyRobots();
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.SOLDIER && robot.getTeam() != rc.getTeam()){
                 if (rc.canMove(rc.getLocation().directionTo(robot.location).opposite())){
@@ -120,6 +127,20 @@ public class Miner {
             }
         }
     }
+
+    //adds enemy archon to 12-15 in shared array
+    public static void addArchonToSharedArray(RobotController rc, MapLocation loc) throws GameActionException{
+        int intLocation = loc.x*100 + loc.y;
+        forLoop:
+        for (int i = 12; i < 16; i++){
+            if (rc.readSharedArray(i) == 0 && rc.readSharedArray(i) != intLocation){
+                rc.writeSharedArray(i, intLocation);
+                break forLoop;
+            } else if (rc.readSharedArray(i) == intLocation){
+                break forLoop;
+            }
+        }
+    }  
 
     public static void init(RobotController rc) throws GameActionException{
         //nearby bots

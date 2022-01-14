@@ -13,6 +13,10 @@ public class Soldier {
     public static boolean enemyArchonNearby = false; //is enemy archon close enough to attack
     public static MapLocation attackTarget; //location of the targeted enemy archon from 12-15
 
+    public static boolean inGroup = false;
+    public static int groupMinCount = 6;
+    public static MapLocation homeArconLocation;
+
     public static void run(RobotController rc) throws GameActionException{
         setTargetArchon(rc);
         System.out.println(currentTarget);
@@ -80,11 +84,11 @@ public class Soldier {
             attackAndCheckArchon(rc);
         }
 
-        //if not able to attack an enemy archon but is targeting an enemy archon, attack nearby soldiers
-        if (targetingArchon && !enemyArchonNearby){
+        //if not able to attack an enemy archon but is targeting an enemy archon, attack nearby soldiers and miners
+        if (!enemyArchonNearby){
             RobotInfo[] robots = rc.senseNearbyRobots();
             for (RobotInfo robot : robots){
-                if (robot.type == RobotType.SOLDIER && robot.getTeam() != rc.getTeam()){
+                if ((robot.type == RobotType.SOLDIER || robot.type == RobotType.MINER) && robot.getTeam() != rc.getTeam()){
                     if (rc.canAttack(robot.getLocation())){
                         rc.attack(robot.getLocation());
                     }
@@ -92,18 +96,22 @@ public class Soldier {
             }
         }
 
-        //moves towards either found archon or guessed location of archon
-        Direction dir = Direction.CENTER;
-        if (!targetingArchon){
-            System.out.println("SCOUTING");
-            dir = Pathfinding.basicMove(rc, currentTarget);
-        } else{
-            System.out.println("ATTACKING");
-            dir = Pathfinding.basicMove(rc, attackTarget);
-        }
+        if (inGroup){
+            //moves towards either found archon or guessed location of archon
+            Direction dir = Direction.CENTER;
+            if (!targetingArchon){
+                System.out.println("SCOUTING");
+                dir = Pathfinding.basicMove(rc, currentTarget);
+            } else{
+                System.out.println("ATTACKING");
+                dir = Pathfinding.basicMove(rc, attackTarget);
+            }
 
-        if (dir != Direction.CENTER){
+            if (dir != Direction.CENTER){
             rc.move(dir);
+            }
+        } else{
+            groupUp(rc);
         }
     }
 
@@ -176,6 +184,41 @@ public class Soldier {
                     //update list somehow to correct locations
                     //or start roaming algo if none nearby
                 }
+            }
+        }
+    }
+
+    public static void groupUp(RobotController rc) throws GameActionException{
+        int soldiersNearby = 0;
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        MapLocation farthestSoldierLocation = null;
+        for (RobotInfo robot : robots){
+            if (robot.type == RobotType.SOLDIER && robot.team == rc.getTeam()){
+                if (farthestSoldierLocation == null){
+                    farthestSoldierLocation = robot.getLocation();
+                } else{
+                    if (rc.getLocation().distanceSquaredTo(robot.getLocation()) > rc.getLocation().distanceSquaredTo(farthestSoldierLocation)){
+                        farthestSoldierLocation = robot.getLocation();
+                    }
+                }
+                soldiersNearby++;
+            }
+        }
+        if (soldiersNearby >= groupMinCount){
+            inGroup = true;
+        } else if (soldiersNearby == 0){
+            rc.move(Pathfinding.basicMove(rc, homeArconLocation));
+        } else{
+
+        }
+
+    }
+
+    public static void init(RobotController rc){
+        RobotInfo[] robots = rc.senseNearbyRobots(2);
+        for (RobotInfo robot : robots){
+            if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
+                homeArconLocation = robot.getLocation();
             }
         }
     }
