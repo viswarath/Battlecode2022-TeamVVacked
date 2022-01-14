@@ -1,4 +1,4 @@
-package VVacked;
+package ExplosiveTurtle;
 
 import battlecode.common.*;
 
