@@ -112,7 +112,7 @@ public class Soldier {
         }
 
         if (!circleFormed){
-            for (int i = 57; i < 64; i+=2){
+            for (int i = 56; i < 63; i+=2){
                 if (rc.readSharedArray(i) == baseID){
                     if (rc.readSharedArray(i+1) == 1){
                         circleFormed = true;

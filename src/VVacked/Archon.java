@@ -68,7 +68,7 @@ public class Archon {
         }
         if (soldiersNearby >= soldiersInCircle){
             forLoop:
-            for (int i = 57; i < 64; i+=2){
+            for (int i = 56; i < 63; i+=2){
                 if (rc.readSharedArray(i) == rc.getID()){
                     rc.writeSharedArray(i+1, 1);
                     break forLoop;
@@ -82,7 +82,7 @@ public class Archon {
                 startCooldown = false;
                 lookForCircleCooldown = 2;
                 forLoop:
-                for (int i = 57; i < 64; i+=2){
+                for (int i = 56; i < 63; i+=2){
                     if (rc.readSharedArray(i) == rc.getID()){
                         rc.writeSharedArray(i+1, 0);
                         break forLoop;
@@ -99,6 +99,7 @@ public class Archon {
         }
 
         if (minersSpawned < maxMinerSpawns){
+            System.out.println("TRYING TO BUILD MINER IN " + build);
             build = getMinerSpawnDir(rc);
         } else{
             if (robotsSpawned%minerRatio != 0){
@@ -233,9 +234,9 @@ public class Archon {
         }
         **/
 
-        //add id to 57-63 for explosive turtle checking
+        //add id to 56-63 for explosive turtle checking
         forLoop:
-        for (int i = 57; i < 64; i+=2){
+        for (int i = 56; i < 63; i+=2){
             if (rc.readSharedArray(i) == 0){
                 rc.writeSharedArray(i, rc.getID());
                 break forLoop;
@@ -246,9 +247,9 @@ public class Archon {
 
         int area = rc.getMapHeight()*rc.getMapWidth();
         if (area <900){
-            soldiersInCircle = 5;
+            soldiersInCircle = 6;
         } else if (area < 1600){
-            soldiersInCircle = 8;
+            soldiersInCircle = 9;
         } else if (area < 2500){
             soldiersInCircle = 12;
         } else{

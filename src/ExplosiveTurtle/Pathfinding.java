@@ -82,7 +82,7 @@ public class Pathfinding {
                     default:
                         break;
                 }
-                if (rc.canBuildRobot(type, dir)) {
+                if (rc.canBuildRobot(type, dir) && !rc.canSenseRobotAtLocation(rc.getLocation().add(dir))) {
                     return attemptDir;
                 }
             }
