@@ -17,17 +17,22 @@ public class Soldier {
 
         if (rc.getHealth() < 25){
             if(distanceToBase > healingRad){
-                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+                if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(toDir))))
+                    rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
             }else if(distanceToBase <= healingRad){
-                rc.move(Pathfinding.basicMove(rc,rc.getLocation().add(perpenDir)));
+                if (rc.canMove(Pathfinding.basicMove(rc,rc.getLocation().add(perpenDir))))
+                    rc.move(Pathfinding.basicMove(rc,rc.getLocation().add(perpenDir)));
             }            
         }
         if(distanceToBase < innerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
+            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir))))
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
         } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
+            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir))))
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
         } else if(distanceToBase > outerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(toDir))))
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
         }
 
         int maxHealth = 60;

@@ -94,7 +94,7 @@ public class Archon {
         //checks lead available
         if (rc.getTeamLeadAmount(rc.getTeam()) > leadBeforeBuild){
             rc.writeSharedArray(40, 1);
-        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 51){
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 26){
             rc.writeSharedArray(40, 0);
         }
 
@@ -243,6 +243,10 @@ public class Archon {
         }
 
         leadBeforeBuild = 50*rc.getArchonCount();
+
+        if (rc.getMapHeight()*rc.getMapWidth() < 1600){
+            soldiersInCircle = 10;
+        }
     }
 }
 

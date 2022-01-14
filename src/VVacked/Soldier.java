@@ -262,5 +262,10 @@ public class Soldier {
             }
         }
         homeArconLocation = closestArchon;
+
+        if (rc.getMapHeight()*rc.getMapWidth() < 1600){
+            innerRad = 9;
+            outerRad = 16;
+        }
     }
 }
