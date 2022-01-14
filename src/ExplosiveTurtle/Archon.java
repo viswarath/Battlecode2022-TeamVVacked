@@ -18,6 +18,9 @@ public class Archon {
 
     public static int maxSoldierSpawns = 15;
     public static int soldiersSpawned = 0;
+
+    public static int maxBuilderSpawns = 1;
+    public static int builderSpawned = 0;
     
     public static void run(RobotController rc) throws GameActionException{
 
@@ -42,7 +45,7 @@ public class Archon {
                         } else{
                             rc.writeSharedArray(i, 0);
                         }
-                    } 
+                    }
                 }
             }
             checkedGuessedLocs = true;
@@ -53,17 +56,36 @@ public class Archon {
             }
         }
 
-        if (minersSpawned < maxMinerSpawns){
-            build = getMinerSpawnDir(rc);
-            System.out.print(build);
-        } else if (soldiersSpawned < maxSoldierSpawns){
-            build = getRadialSpawnDir(rc, RobotType.SOLDIER);
+        build = getRadialSpawnDir(rc, RobotType.MINER);
+        if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
+            rc.buildRobot(RobotType.MINER, build);
+            minersSpawned += 1;
+        } else if(soldiersSpawned < maxSoldierSpawns && rc.canBuildRobot(RobotType.SOLDIER, build)){
+            rc.buildRobot(RobotType.SOLDIER, build);
+            soldiersSpawned+= 1;
+        } else if (builderSpawned < maxBuilderSpawns && rc.getRoundNum() > 500){
+            rc.buildRobot(RobotType.BUILDER, build);
+            builderSpawned += 1;
         }
+
+        radialDirectionIndex+=1;
+        if (radialDirectionIndex == Data.directions.length){
+            radialDirectionIndex = 0;
+        }
+
+        for (RobotInfo robot: rc.senseNearbyRobots(20, rc.getTeam())){
+            if(robot.getHealth() < 30 && robot.getType() == RobotType.SOLDIER){
+                if (rc.canRepair(robot.getLocation())){
+                    rc.repair(robot.getLocation());
+                }
+            }
+        }
+        /*
         if (build != Direction.CENTER){
             if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
                 rc.buildRobot(RobotType.MINER, build);
                 minersSpawned += 1;
-            } else if(rc.canBuildRobot(RobotType.SOLDIER, build)){
+            } else if(soldiersSpawned < maxSoldierSpawns && rc.canBuildRobot(RobotType.SOLDIER, build)){
                 rc.buildRobot(RobotType.SOLDIER, build);
             }
             radialDirectionIndex+=1;
@@ -71,6 +93,7 @@ public class Archon {
                 radialDirectionIndex = 0;
             }
         }
+        */
     }
 
     public static Direction getMinerSpawnDir(RobotController rc) throws GameActionException{
@@ -123,10 +146,8 @@ public class Archon {
             firstMinerPhaseEnd = maxMinerSpawns;
         }
 
-        RobotInfo[] robots = rc.senseNearbyRobots();
-
         //check if enemy base is within sensing range of archon
-        for(RobotInfo robot: robots){
+        for(RobotInfo robot: rc.senseNearbyRobots()){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() != rc.getTeam()){
                 enemyArchonNearby = true;
                 nearbyEnemyArchonLocation = robot.getLocation();
