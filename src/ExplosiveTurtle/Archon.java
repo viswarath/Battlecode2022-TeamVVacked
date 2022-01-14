@@ -77,6 +77,7 @@ public class Archon {
             if(robot.getHealth() < 30 && robot.getType() == RobotType.SOLDIER){
                 if (rc.canRepair(robot.getLocation())){
                     rc.repair(robot.getLocation());
+                    System.out.print("repairing");
                 }
             }
         }
