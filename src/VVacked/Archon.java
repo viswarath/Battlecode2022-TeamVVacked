@@ -16,6 +16,11 @@ public class Archon {
     public static int defaultMinerNumber = 2; //minimum number of miners to spawn
     public static int maxMinerSpawns = 11; //max number of miners to spawn
     public static int nearbyLeadLocations = 0; //number of lead deposits nearby
+
+    //explosive turtle shit
+    public static int soldiersInCircle = 15;
+    public static boolean startCooldown = false;
+    public static int lookForCircleCooldown = 2;
     
     public static void run(RobotController rc) throws GameActionException{
 
@@ -48,6 +53,33 @@ public class Archon {
             System.out.print(rc.getID());
             for(int i = 0;i <12; i++){
                 System.out.print("( " +rc.readSharedArray(i) + " )");
+            }
+        }
+
+        //EXPLOSIVE TURTLE CHECK
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        int soldiersNearby = 0;
+        for (RobotInfo robot : robots){
+            if (robot.type == RobotType.SOLDIER && robot.getTeam() == rc.getTeam()){
+                soldiersNearby++;
+            }
+        }
+        if (soldiersNearby >= soldiersInCircle){
+            forLoop:
+            for (int i = 57; i < 64; i+=2){
+                if (rc.readSharedArray(i) == rc.getID()){
+                    rc.writeSharedArray(i+1, 1);
+                    break forLoop;
+                }
+            }
+            startCooldown = true;
+        }
+        if (startCooldown){
+            lookForCircleCooldown--;
+            if (lookForCircleCooldown == 0){
+                startCooldown = false;
+                lookForCircleCooldown = 2;
+                rc.writeSharedArray(64, 0);
             }
         }
 
@@ -185,6 +217,15 @@ public class Archon {
             System.out.print("( " +rc.readSharedArray(i) + " )");
         }
         **/
+
+        //add id to 57-63 for explosive turtle checking
+        forLoop:
+        for (int i = 57; i < 64; i+=2){
+            if (rc.readSharedArray(i) == 0){
+                rc.writeSharedArray(i, rc.getID());
+                break forLoop;
+            }
+        }
     }
 }
 

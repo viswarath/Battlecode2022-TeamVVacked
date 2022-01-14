@@ -13,9 +13,15 @@ public class Soldier {
     public static boolean enemyArchonNearby = false; //is enemy archon close enough to attack
     public static MapLocation attackTarget; //location of the targeted enemy archon from 12-15
 
-    public static boolean inGroup = false;
-    public static int groupMinCount = 6;
+    // public static boolean inGroup = false;
+    // public static int groupMinCount = 6;
     public static MapLocation homeArconLocation;
+
+    //explosive turtle shit 
+    public static int baseID; 
+    public static int innerRad = 16;
+    public static int outerRad = 25;
+    public static boolean circleFormed = false;
 
     public static void run(RobotController rc) throws GameActionException{
         setTargetArchon(rc);
@@ -96,7 +102,17 @@ public class Soldier {
             }
         }
 
-        if (inGroup){
+        if (!circleFormed){
+            for (int i = 57; i < 64; i+=2){
+                if (rc.readSharedArray(i) == baseID){
+                    if (rc.readSharedArray(i+1) == 1){
+                        circleFormed = true;
+                    }
+                }
+            }
+        }
+
+        if (circleFormed){
             //moves towards either found archon or guessed location of archon
             Direction dir = Direction.CENTER;
             if (!targetingArchon){
@@ -111,7 +127,8 @@ public class Soldier {
             rc.move(dir);
             }
         } else{
-            groupUp(rc);
+            //groupUp(rc);
+            explosiveTurtle(rc);
         }
     }
 
@@ -131,6 +148,24 @@ public class Soldier {
             }
         }
         currentTarget = closest;
+    }
+
+    public static void explosiveTurtle(RobotController rc) throws GameActionException{
+        System.out.println("\n\nEXPLOSIVE TURTLE\n\n");
+        //set the perpendicular direction to the archon
+        Direction perpenDir = rc.getLocation().directionTo(homeArconLocation).rotateRight().rotateRight();
+        //awayDir is away from base toDir is to base
+        Direction awayDir = homeArconLocation.directionTo(rc.getLocation());
+        Direction toDir = awayDir.opposite();
+        int distanceToBase = rc.getLocation().distanceSquaredTo(homeArconLocation);
+
+        if(distanceToBase < innerRad){
+            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
+        } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
+            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
+        } else if(distanceToBase > outerRad){
+            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+        }
     }
 
     //adds enemy archon to 12-15 in shared array
@@ -166,11 +201,6 @@ public class Soldier {
                 }
 
                 if (!rc.canSenseRobotAtLocation(enemyLoc)){
-                    System.out.println("\n\n\nENEMY ARCHON DIED\n\n\n");
-                    System.out.println(rc.readSharedArray(12));
-                    System.out.println(rc.readSharedArray(13));
-                    System.out.println(rc.readSharedArray(14));
-                    System.out.println(rc.readSharedArray(15));
                     //enemy archon died
                     if (rc.readSharedArray(currentArchonIndex0) != 0){
                         rc.writeSharedArray(currentArchonIndex0, 0);
@@ -188,38 +218,46 @@ public class Soldier {
         }
     }
 
-    public static void groupUp(RobotController rc) throws GameActionException{
-        int soldiersNearby = 0;
-        RobotInfo[] robots = rc.senseNearbyRobots();
-        MapLocation farthestSoldierLocation = null;
-        for (RobotInfo robot : robots){
-            if (robot.type == RobotType.SOLDIER && robot.team == rc.getTeam()){
-                if (farthestSoldierLocation == null){
-                    farthestSoldierLocation = robot.getLocation();
-                } else{
-                    if (rc.getLocation().distanceSquaredTo(robot.getLocation()) > rc.getLocation().distanceSquaredTo(farthestSoldierLocation)){
-                        farthestSoldierLocation = robot.getLocation();
-                    }
-                }
-                soldiersNearby++;
-            }
-        }
-        if (soldiersNearby >= groupMinCount){
-            inGroup = true;
-        } else if (soldiersNearby == 0){
-            rc.move(Pathfinding.basicMove(rc, homeArconLocation));
-        } else{
+    // public static void groupUp(RobotController rc) throws GameActionException{
+    //     int soldiersNearby = 0;
+    //     RobotInfo[] robots = rc.senseNearbyRobots();
+    //     MapLocation farthestSoldierLocation = null;
+    //     for (RobotInfo robot : robots){
+    //         if (robot.type == RobotType.SOLDIER && robot.team == rc.getTeam()){
+    //             if (farthestSoldierLocation == null){
+    //                 farthestSoldierLocation = robot.getLocation();
+    //             } else{
+    //                 if (rc.getLocation().distanceSquaredTo(robot.getLocation()) > rc.getLocation().distanceSquaredTo(farthestSoldierLocation)){
+    //                     farthestSoldierLocation = robot.getLocation();
+    //                 }
+    //             }
+    //             soldiersNearby++;
+    //         }
+    //     }
+    //     if (soldiersNearby >= groupMinCount){
+    //         inGroup = true;
+    //     } else if (soldiersNearby == 0){
+    //         rc.move(Pathfinding.basicMove(rc, homeArconLocation));
+    //     } else{
 
-        }
+    //     }
 
-    }
+    // }
 
     public static void init(RobotController rc){
         RobotInfo[] robots = rc.senseNearbyRobots(2);
+        MapLocation closestArchon = null;
         for (RobotInfo robot : robots){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
-                homeArconLocation = robot.getLocation();
+                if (closestArchon == null){
+                    closestArchon = robot.getLocation();
+                    baseID = robot.getID();
+                } else if (rc.getLocation().distanceSquaredTo(robot.getLocation()) < rc.getLocation().distanceSquaredTo(closestArchon)){
+                    closestArchon = robot.getLocation();
+                    baseID = robot.getID();
+                }
             }
         }
+        homeArconLocation = closestArchon;
     }
 }

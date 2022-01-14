@@ -3,8 +3,8 @@ import battlecode.common.*;
 
 public class Soldier {
     public static MapLocation baseLocation;   
-    public static int innerRad = 16;
-    public static int outerRad = 24;
+    public static int innerRad = 2;
+    public static int outerRad = 16;
     public static void run(RobotController rc) throws GameActionException{
         //set the perpendicular direction to the archon
         Direction perpenDir = rc.getLocation().directionTo(baseLocation).rotateRight().rotateRight();
@@ -20,7 +20,6 @@ public class Soldier {
         } else if(distanceToBase > outerRad){
             rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
         }
-
     }
 
     public static void init(RobotController rc){
