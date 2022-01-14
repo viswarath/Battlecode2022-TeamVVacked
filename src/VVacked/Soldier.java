@@ -160,11 +160,14 @@ public class Soldier {
         int distanceToBase = rc.getLocation().distanceSquaredTo(homeArconLocation);
 
         if(distanceToBase < innerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
+            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir))))
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
         } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
+            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir))))
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
         } else if(distanceToBase > outerRad){
-            rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(toDir))))
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
         }
     }
 

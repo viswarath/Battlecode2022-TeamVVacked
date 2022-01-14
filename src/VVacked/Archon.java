@@ -81,7 +81,13 @@ public class Archon {
             if (lookForCircleCooldown == 0){
                 startCooldown = false;
                 lookForCircleCooldown = 2;
-                rc.writeSharedArray(64, 0);
+                forLoop:
+                for (int i = 57; i < 64; i+=2){
+                    if (rc.readSharedArray(i) == rc.getID()){
+                        rc.writeSharedArray(i+1, 0);
+                        break forLoop;
+                    }
+                }
             }
         }
 
