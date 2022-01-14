@@ -3,8 +3,10 @@ import battlecode.common.*;
 
 public class Soldier {
     public static MapLocation baseLocation;   
-    public static int innerRad = 2;
-    public static int outerRad = 16;
+    public static int innerRad = 16;
+    public static int outerRad = 24;
+    public static int healingRad = 20;
+    public static RobotInfo attackBot;
     public static void run(RobotController rc) throws GameActionException{
         //set the perpendicular direction to the archon
         Direction perpenDir = rc.getLocation().directionTo(baseLocation).rotateRight().rotateRight();
@@ -13,12 +15,32 @@ public class Soldier {
         Direction toDir = awayDir.opposite();
         int distanceToBase = rc.getLocation().distanceSquaredTo(baseLocation);
 
+        if (rc.getHealth() < 25){
+            if(distanceToBase > healingRad){
+                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+            }else if(distanceToBase <= healingRad){
+                rc.move(Pathfinding.basicMove(rc,rc.getLocation().add(perpenDir)));
+            }            
+        }
         if(distanceToBase < innerRad){
             rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
         } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
             rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
         } else if(distanceToBase > outerRad){
             rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+        }
+
+        int maxHealth = 60;
+
+        for (RobotInfo robot: rc.senseNearbyRobots(13, rc.getTeam().opponent())){
+            if(robot.getType() == RobotType.SOLDIER && rc.canAttack(robot.getLocation())){
+                if(robot.getHealth() < maxHealth){
+                    attackBot = robot;
+                }
+            }
+        }
+        if(rc.canAttack(attackBot.getLocation())){
+            rc.attack(attackBot.getLocation());
         }
     }
 
