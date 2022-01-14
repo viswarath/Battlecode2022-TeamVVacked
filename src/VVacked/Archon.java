@@ -94,7 +94,7 @@ public class Archon {
         //checks lead available
         if (rc.getTeamLeadAmount(rc.getTeam()) > leadBeforeBuild){
             rc.writeSharedArray(40, 1);
-        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 26){
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 16){
             rc.writeSharedArray(40, 0);
         }
 
@@ -242,10 +242,17 @@ public class Archon {
             }
         }
 
-        leadBeforeBuild = 50*rc.getArchonCount();
+        leadBeforeBuild = 75*rc.getArchonCount();
 
-        if (rc.getMapHeight()*rc.getMapWidth() < 1600){
-            soldiersInCircle = 10;
+        int area = rc.getMapHeight()*rc.getMapWidth();
+        if (area <900){
+            soldiersInCircle = 5;
+        } else if (area < 1600){
+            soldiersInCircle = 8;
+        } else if (area < 2500){
+            soldiersInCircle = 12;
+        } else{
+            soldiersInCircle = 15;
         }
     }
 }

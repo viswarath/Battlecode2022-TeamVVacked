@@ -22,9 +22,12 @@ public class Soldier {
     public static int innerRad = 16;
     public static int outerRad = 25;
     public static boolean circleFormed = false;
+    public static int healingRad = 20;
+    public static RobotInfo attackBot;
 
     public static void run(RobotController rc) throws GameActionException{
         setTargetArchon(rc);
+        attackBot = null;
         System.out.println(currentTarget);
 
         //archons found are put in these spots, dead archons have value of 9999
@@ -90,14 +93,20 @@ public class Soldier {
             attackAndCheckArchon(rc);
         }
 
-        //if not able to attack an enemy archon but is targeting an enemy archon, attack nearby soldiers and miners
+        //if not able to attack an enemy archon, attack nearby soldiers and miners
         if (!enemyArchonNearby){
-            RobotInfo[] robots = rc.senseNearbyRobots();
+            int maxHealth = 60;
+            RobotInfo[] robots = rc.senseNearbyRobots(13, rc.getTeam().opponent());
             for (RobotInfo robot : robots){
-                if ((robot.type == RobotType.SOLDIER || robot.type == RobotType.MINER) && robot.getTeam() != rc.getTeam()){
-                    if (rc.canAttack(robot.getLocation())){
-                        rc.attack(robot.getLocation());
+                if(rc.canAttack(robot.getLocation())){
+                    if(robot.getHealth() < maxHealth){
+                        attackBot = robot;
                     }
+                }
+            }
+            if (attackBot != null){
+                if (rc.canAttack(attackBot.getLocation())){
+                    rc.attack(attackBot.getLocation());
                 }
             }
         }
@@ -115,7 +124,9 @@ public class Soldier {
         if (circleFormed){
             //moves towards either found archon or guessed location of archon
             Direction dir = Direction.CENTER;
-            if (!targetingArchon){
+            if (attackBot != null){
+                dir = Pathfinding.basicMove(rc, attackBot.location);
+            } else if (!targetingArchon){
                 System.out.println("SCOUTING");
                 dir = Pathfinding.basicMove(rc, currentTarget);
             } else{
@@ -151,24 +162,52 @@ public class Soldier {
     }
 
     public static void explosiveTurtle(RobotController rc) throws GameActionException{
-        System.out.println("\n\nEXPLOSIVE TURTLE\n\n");
         //set the perpendicular direction to the archon
         Direction perpenDir = rc.getLocation().directionTo(homeArconLocation).rotateRight().rotateRight();
         //awayDir is away from base toDir is to base
         Direction awayDir = homeArconLocation.directionTo(rc.getLocation());
         Direction toDir = awayDir.opposite();
         int distanceToBase = rc.getLocation().distanceSquaredTo(homeArconLocation);
+        MapLocation moveTo = null;
 
+        //setting the move location based on distance away from the movement ring
         if(distanceToBase < innerRad){
-            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir))))
-                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(awayDir)));
+            moveTo = rc.getLocation().add(awayDir);
         } else if(distanceToBase >= innerRad && distanceToBase <= outerRad){
-            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir))))
-                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(perpenDir)));
+            moveTo = rc.getLocation().add(perpenDir);
         } else if(distanceToBase > outerRad){
-            if (rc.canMove(Pathfinding.basicMove(rc, rc.getLocation().add(toDir))))
-                rc.move(Pathfinding.basicMove(rc, rc.getLocation().add(toDir)));
+            moveTo = rc.getLocation().add(toDir);
         }
+
+        //setting the move location because of low health takes precedence!
+        if (rc.getHealth() < 25){
+            if(distanceToBase > healingRad){
+                moveTo = rc.getLocation().add(toDir);
+            }else if(distanceToBase <= healingRad){
+                moveTo = rc.getLocation().add(perpenDir);
+            }       
+        }
+
+        Direction temp = perpenDir;
+        while(rc.onTheMap(moveTo) == false){
+            moveTo = rc.getLocation().add(temp.rotateLeft());
+        }
+        
+        if (rc.canMove(Pathfinding.basicMove(rc, moveTo)))
+            rc.move(Pathfinding.basicMove(rc, moveTo));
+
+        //int maxHealth = 60;
+
+        // for (RobotInfo robot: rc.senseNearbyRobots(13, rc.getTeam().opponent())){
+        //     if(robot.getType() == RobotType.SOLDIER && rc.canAttack(robot.getLocation())){
+        //         if(robot.getHealth() < maxHealth){
+        //             attackBot = robot;
+        //         }
+        //     }
+        // }
+        // if(rc.canAttack(attackBot.getLocation())){
+        //     rc.attack(attackBot.getLocation());
+        // }
     }
 
     //adds enemy archon to 12-15 in shared array
