@@ -10,6 +10,9 @@ public class Miner {
     public static boolean foundLeadLocation = false;
     public static MapLocation targetLocation;
     public static MapLocation[] enemyArchons = new MapLocation[4];
+    public static MapLocation baseLoc;
+
+    public static int baseID;
 
     //miner that reads from the lead loacation array in reverse order
     public static boolean reverseMiner = false;
@@ -171,26 +174,25 @@ public class Miner {
         //set default target
         targetLocation = loc;
 
-        MapLocation baseLoc = rc.getLocation();
-
         //find base and set move to away from base
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
-                MapLocation base = robot.getLocation();
-                baseLoc = base;
-                move = base.directionTo(loc);
+                baseLoc = robot.location;
+                move = rc.getLocation().directionTo(baseLoc).opposite();
             }
         }
 
         //choose whether to reverse targeting order for lead (favoring away from the corners for more mining)
-        int rand = Data.rng.nextInt(3);
-        if (baseLoc.x < rc.getMapWidth()/2.0){
-            if (rand == 0){
-                reverseMiner = true;
-            }
-        } else{
-            if (rand != 0){
-                reverseMiner = true;
+        if (baseLoc != null){
+            int rand = Data.rng.nextInt(3);
+            if (baseLoc.x < rc.getMapWidth()/2.0){
+                if (rand == 0){
+                    reverseMiner = true;
+                }
+            } else{
+                if (rand != 0){
+                    reverseMiner = true;
+                }
             }
         }
 
