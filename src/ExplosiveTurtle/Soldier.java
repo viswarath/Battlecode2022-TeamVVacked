@@ -7,6 +7,8 @@ public class Soldier {
     public static int outerRad = 24;
     public static int healingRad = 20;
     public static RobotInfo attackBot;
+    public static boolean attackingSoldier;
+    public static boolean attackingArchon;
     public static void run(RobotController rc) throws GameActionException{
         //set the perpendicular direction to the archon
         Direction perpenDir = rc.getLocation().directionTo(baseLocation).rotateRight().rotateRight();
@@ -15,6 +17,36 @@ public class Soldier {
         Direction toDir = awayDir.opposite();
         int distanceToBase = rc.getLocation().distanceSquaredTo(baseLocation);
         MapLocation moveTo = null;
+
+        //the attacking algo
+        attackingArchon = false;
+        attackingSoldier = false;
+
+        int maxHealth = 60;
+        RobotInfo[] robots = rc.senseNearbyRobots(13, rc.getTeam().opponent());
+
+        for (RobotInfo robot:robots){
+            if(robot.getType() == RobotType.ARCHON && rc.canAttack(robot.getLocation())){
+                attackBot = robot;
+                attackingArchon = true;
+            }
+            if(attackingArchon != true && robot.getType() == RobotType.SOLDIER && rc.canAttack(robot.getLocation())){
+                if(robot.getHealth() < maxHealth){
+                    attackBot = robot;
+                    attackingSoldier = true;
+                }
+            }
+            if(attackingArchon != true && attackingSoldier != true && rc.canAttack(robot.getLocation())){
+                attackBot = robot;
+            }
+        }
+
+        if(rc.canAttack(attackBot.getLocation())){
+            rc.attack(attackBot.getLocation());
+        }
+
+        //end of attacking algo
+        //start of movement algo
 
         //setting the move location based on distance away from the movement ring
         if(distanceToBase < innerRad){
@@ -38,21 +70,11 @@ public class Soldier {
         while(rc.onTheMap(moveTo) == false){
             moveTo = rc.getLocation().add(temp.rotateLeft());
         }
-        
-        rc.move(Pathfinding.basicMove(rc, moveTo));
 
-        int maxHealth = 60;
-
-        for (RobotInfo robot: rc.senseNearbyRobots(13, rc.getTeam().opponent())){
-            if(robot.getType() == RobotType.SOLDIER && rc.canAttack(robot.getLocation())){
-                if(robot.getHealth() < maxHealth){
-                    attackBot = robot;
-                }
-            }
+        if (rc.canMove(Pathfinding.basicMove(rc, moveTo))){
+            rc.move(Pathfinding.basicMove(rc, moveTo));
         }
-        if(rc.canAttack(attackBot.getLocation())){
-            rc.attack(attackBot.getLocation());
-        }
+        //end of movement algo
     }
 
     public static void init(RobotController rc){

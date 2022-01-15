@@ -68,9 +68,11 @@ public class Archon {
             builderSpawned += 1;
         }
 
-        radialDirectionIndex+=1;
-        if (radialDirectionIndex == Data.directions.length){
-            radialDirectionIndex = 0;
+        if (build != Direction.CENTER){
+            radialDirectionIndex+=1;
+            if (radialDirectionIndex == Data.directions.length){
+                radialDirectionIndex = 0;
+            }
         }
 
         for (RobotInfo robot: rc.senseNearbyRobots(20, rc.getTeam())){
