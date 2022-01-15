@@ -52,7 +52,7 @@ public class Pathfinding {
         // System.out.println(dir);
         if (dir == null) {
             return Direction.CENTER;
-        } else if (rc.canBuildRobot(type, dir)) {
+        } else if (rc.canBuildRobot(type, dir) && !rc.canSenseRobotAtLocation(rc.getLocation().add(dir))) {
             return dir;
         } else {
             Direction attemptDir = Direction.CENTER;
@@ -82,7 +82,8 @@ public class Pathfinding {
                     default:
                         break;
                 }
-                if (rc.canBuildRobot(type, dir)) {
+                if (rc.canBuildRobot(type, attemptDir) && !rc.canSenseRobotAtLocation(rc.getLocation().add(attemptDir))) {
+                    System.out.println(attemptDir);
                     return attemptDir;
                 }
             }

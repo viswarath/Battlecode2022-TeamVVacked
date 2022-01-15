@@ -6,14 +6,14 @@ public class Archon {
 
     //public static int radialDirectionIndex = 0; //index to help spawn around in a circle
     public static int minersSpawned = 0; //number of miners spawned
-    public static int robotsSpawned = 0; //number of robots spawned
+    public static int robotsSpawned = 0; //number of robots spawned in miner phase
     public static int minerRatio = 3; //spawn miners every this number of soldiers
 
     public static boolean enemyArchonNearby = false;
     public static boolean checkedGuessedLocs = false;
     public static MapLocation nearbyEnemyArchonLocation;
 
-    public static int defaultMinerNumber = 2; //minimum number of miners to spawn
+    public static int defaultMinerNumber = 4; //minimum number of miners to spawn
     public static int maxMinerSpawns = 11; //max number of miners to spawn
     public static int nearbyLeadLocations = 0; //number of lead deposits nearby
 
@@ -23,10 +23,14 @@ public class Archon {
     public static int lookForCircleCooldown = 2;
 
     public static int leadBeforeBuild;
+
+    public static int soldiertoMinerCount = 0;
+    public static int soldierToMinerRatio = 3;
+    public static boolean minerPhaseEnd = false;
+
+    //public int minerSpawnIndex
     
     public static void run(RobotController rc) throws GameActionException{
-
-        Direction build = Direction.CENTER;
 
         /**
          * delete nearby guessed locations in the shared array
@@ -52,10 +56,10 @@ public class Archon {
             }
             checkedGuessedLocs = true;
             //print to check updated locations
-            System.out.print(rc.getID());
-            for(int i = 0;i <12; i++){
-                System.out.print("( " +rc.readSharedArray(i) + " )");
-            }
+            // System.out.print(rc.getID());
+            // for(int i = 0;i <12; i++){
+            //     System.out.print("( " +rc.readSharedArray(i) + " )");
+            // }
         }
 
         //EXPLOSIVE TURTLE CHECK
@@ -68,7 +72,7 @@ public class Archon {
         }
         if (soldiersNearby >= soldiersInCircle){
             forLoop:
-            for (int i = 57; i < 64; i+=2){
+            for (int i = 56; i < 63; i+=2){
                 if (rc.readSharedArray(i) == rc.getID()){
                     rc.writeSharedArray(i+1, 1);
                     break forLoop;
@@ -82,7 +86,7 @@ public class Archon {
                 startCooldown = false;
                 lookForCircleCooldown = 2;
                 forLoop:
-                for (int i = 57; i < 64; i+=2){
+                for (int i = 56; i < 63; i+=2){
                     if (rc.readSharedArray(i) == rc.getID()){
                         rc.writeSharedArray(i+1, 0);
                         break forLoop;
@@ -94,30 +98,57 @@ public class Archon {
         //checks lead available
         if (rc.getTeamLeadAmount(rc.getTeam()) > leadBeforeBuild){
             rc.writeSharedArray(40, 1);
-        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 26){
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 16){
             rc.writeSharedArray(40, 0);
         }
 
+        //gets build direction and builds
+        BuildLogic(rc);
+    }
+
+    private static void BuildLogic(RobotController rc) throws GameActionException {
+        Direction build;
         if (minersSpawned < maxMinerSpawns){
-            build = getMinerSpawnDir(rc);
+            if (soldiertoMinerCount%soldierToMinerRatio == 0){
+                build = getMinerSpawnDir(rc);
+            } else{
+                build = getSoldierSpawnDir(rc);
+            }
         } else{
+            checkForMinerPhaseEnd(rc);
             if (robotsSpawned%minerRatio != 0){
                 build = getSoldierSpawnDir(rc);
             } else{
                 build = getMinerSpawnDir(rc);
             }
         }
+        //actually builds
         if (build != Direction.CENTER){
-            if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
-                rc.buildRobot(RobotType.MINER, build);
-                minersSpawned += 1;
+            if (minersSpawned < maxMinerSpawns){
+                if (soldiertoMinerCount%soldierToMinerRatio != 0){
+                    if (rc.canBuildRobot(RobotType.MINER, build)){
+                        rc.buildRobot(RobotType.MINER, build);
+                        System.out.println("SPAWNING MINER IN MINER PHASE");
+                        minersSpawned++;
+                        soldiertoMinerCount++;
+                    }
+                } else{
+                    if (rc.canBuildRobot(RobotType.SOLDIER, build)){
+                        rc.buildRobot(RobotType.SOLDIER, build);
+                        System.out.println("SPAWNING SOLDIER IN MINER PHASE");
+                        soldiertoMinerCount++;
+                    }
+                }
+                
             } else if(rc.readSharedArray(40) == 1){
                 if (robotsSpawned%minerRatio != 0){
                     rc.buildRobot(RobotType.SOLDIER, build);
+                    robotsSpawned+=1;
                 } else{
                     rc.buildRobot(RobotType.MINER, build);
+                    minersSpawned++;
+                    robotsSpawned+=1;
                 }
-                robotsSpawned+=1;
             }
             //radialDirectionIndex+=1;
             // if (radialDirectionIndex == Data.directions.length){
@@ -138,9 +169,14 @@ public class Archon {
                     maxLeadLocation = leadLocations[i];
                 }
             }
-            System.out.print(maxLeadLocation);
         }
-        return Pathfinding.basicBuild(rc, maxLeadLocation, RobotType.MINER);
+
+        Direction dir = Pathfinding.basicBuild(rc, maxLeadLocation, RobotType.MINER);
+        //if (minersSpawned % 3 != 0){
+            return dir;
+        //} else{
+
+        //}
     }
 
 
@@ -173,6 +209,19 @@ public class Archon {
             }
         }
         return Pathfinding.basicBuild(rc, closest, RobotType.SOLDIER);
+    }
+
+    public static void checkForMinerPhaseEnd(RobotController rc) throws GameActionException{
+        minerPhaseEnd = true;
+        forLoop:
+        for (int i = 41; i < 48; i+=2){
+            if (rc.readSharedArray(i) == rc.getID()){
+                if (rc.readSharedArray(i+1) != 1){
+                    rc.writeSharedArray(i+1, 1);
+                }
+                break forLoop;
+            }
+        }
     }
 
     public static void addPossibleEnemyArchonLocations(RobotController rc, int buffer) throws GameActionException{
@@ -233,20 +282,40 @@ public class Archon {
         }
         **/
 
-        //add id to 57-63 for explosive turtle checking
+        //add id to 56-63 for explosive turtle checking
         forLoop:
-        for (int i = 57; i < 64; i+=2){
+        for (int i = 56; i < 63; i+=2){
             if (rc.readSharedArray(i) == 0){
                 rc.writeSharedArray(i, rc.getID());
                 break forLoop;
             }
         }
 
-        leadBeforeBuild = 50*rc.getArchonCount();
-
-        if (rc.getMapHeight()*rc.getMapWidth() < 1600){
-            soldiersInCircle = 10;
+        //add id to 41-48 for soldier scouts
+        forLoop:
+        for (int i = 41; i < 48; i+=2){
+            if (rc.readSharedArray(i) == 0){
+                rc.writeSharedArray(i, rc.getID());
+                break forLoop;
+            }
         }
+
+        leadBeforeBuild = 75*rc.getArchonCount();
+
+        int area = rc.getMapHeight()*rc.getMapWidth();
+        if (area <900){
+            soldiersInCircle = 10;
+        } else if (area < 1600){
+            soldiersInCircle = 15;
+        } else if (area < 2500){
+            soldiersInCircle = 20;
+        } else{
+            soldiersInCircle = 25;
+        }
+
+        //set randoms
+        rc.writeSharedArray(38, Data.rng.nextInt(4));
+        rc.writeSharedArray(38, Data.rng.nextInt(3));
     }
 }
 

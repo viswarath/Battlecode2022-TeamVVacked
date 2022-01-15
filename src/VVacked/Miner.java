@@ -10,6 +10,9 @@ public class Miner {
     public static boolean foundLeadLocation = false;
     public static MapLocation targetLocation;
     public static MapLocation[] enemyArchons = new MapLocation[4];
+    public static MapLocation baseLoc;
+
+    public static int baseID;
 
     //miner that reads from the lead loacation array in reverse order
     public static boolean reverseMiner = false;
@@ -40,33 +43,7 @@ public class Miner {
                     break forLoop;
                 }
             }
-        }
-
-        //finds a lead location to target for mining if one is not already found
-        MapLocation prioritizedTarget = null;
-        if (!foundLeadLocation){
-            Direction[] facingArray = Pathfinding.getFacingArray(rc, directionIndex);
-            forLoop:
-            for (MapLocation loc : leadLocations){
-                if (rc.canSenseLocation(loc)){
-                    if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
-                        for (Direction dir : facingArray){
-                            if (rc.getLocation().directionTo(loc) == dir){
-                                prioritizedTarget = loc;
-                                System.out.println("(" + targetLocation.x + "' " + targetLocation.y + "), " + rc.getID());
-                                foundLeadLocation = true;
-                                break forLoop; 
-                            } else{
-                                targetLocation = loc;
-                            }
-                        }        
-                    }
-                }
-            }
-        }
-        if (prioritizedTarget != null){
-            targetLocation = prioritizedTarget;
-        }   
+        } 
 
         //checks for nearby enemy archons and adds if it sees them
         RobotInfo[] robots = rc.senseNearbyRobots();
@@ -75,6 +52,8 @@ public class Miner {
                 addArchonToSharedArray(rc, robot.getLocation());
             }
         }
+
+        setMiningTarget(rc, leadLocations);
 
         //pathfinds a direction to the target location
         Direction dir = Pathfinding.basicMove(rc, targetLocation);
@@ -90,30 +69,34 @@ public class Miner {
         }
 
         //mines lead or moves towards target
-        if (rc.canSenseLocation(targetLocation)){
-            //mines until it cannot mine anymore spaces around it
-            while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
-                MapLocation me = rc.getLocation();
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                        // Notice that the Miner's action cooldown is very low.
-                        // You can mine multiple times per turn!
-                        while (rc.canMineGold(mineLocation)){ //gold doesnt regen
-                            rc.mineGold(mineLocation);
-                        }
-                        while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
-                            rc.mineLead(mineLocation);
+        if (targetLocation != null){
+            if (rc.canSenseLocation(targetLocation)){
+                //mines until it cannot mine anymore spaces around it
+                while (rc.senseLead(targetLocation) > 1 && rc.canMineLead(targetLocation)){
+                    MapLocation me = rc.getLocation();
+                    for (int dx = -1; dx <= 1; dx++) {
+                        for (int dy = -1; dy <= 1; dy++) {
+                            MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
+                            // Notice that the Miner's action cooldown is very low.
+                            // You can mine multiple times per turn!
+                            while (rc.canMineGold(mineLocation)){ //gold doesnt regen
+                                rc.mineGold(mineLocation);
+                            }
+                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                                rc.mineLead(mineLocation);
+                            }
                         }
                     }
+                    if (rc.senseLead(targetLocation) < 2){
+                        foundLeadLocation = false;
+                    }
                 }
-                if (rc.senseLead(targetLocation) < 2){
-                    foundLeadLocation = false;
+                //if not adjacent to target move towards the target
+                if (rc.canMove(dir) && foundLeadLocation && !rc.getLocation().isAdjacentTo(targetLocation)){
+                    rc.move(dir);   
                 }
-            }
-            //if not adjacent to target move towards the target
-            if (rc.canMove(dir) && foundLeadLocation && !rc.getLocation().isAdjacentTo(targetLocation)){
-                rc.move(dir);   
+            } else{
+                foundLeadLocation = false;
             }
         } else{
             foundLeadLocation = false;
@@ -126,6 +109,47 @@ public class Miner {
                 rc.move(move);
             }
         }
+    }
+
+    public static void setMiningTarget(RobotController rc, MapLocation[] leadLocations) throws GameActionException{
+                //finds a lead location to target for mining if one is not already found
+                MapLocation prioritizedTarget = null;
+                if (!foundLeadLocation){
+                    // Direction[] facingArray = Pathfinding.getFacingArray(rc, directionIndex);
+                    // forLoop:
+                    // for (MapLocation loc : leadLocations){
+                    //     if (rc.canSenseLocation(loc)){
+                    //         if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
+                    //             for (Direction dir : facingArray){
+                    //                 if (rc.getLocation().directionTo(loc) == dir){
+                    //                     prioritizedTarget = loc;
+                    //                     System.out.println("(" + targetLocation.x + "' " + targetLocation.y + "), " + rc.getID());
+                    //                     foundLeadLocation = true;
+                    //                     break forLoop; 
+                    //                 } else{
+                    //                     targetLocation = loc;
+                    //                 }
+                    //             }        
+                    //         }
+                    //     }
+                    // }
+                    for (MapLocation loc : leadLocations){
+                        if (rc.canSenseLocation(loc)){
+                            if ((rc.senseLead(loc) > 1)){
+                                if (prioritizedTarget == null){
+                                    prioritizedTarget = loc;
+                                    foundLeadLocation = true;
+                                } else if (rc.getLocation().distanceSquaredTo(loc) < rc.getLocation().distanceSquaredTo(prioritizedTarget)){
+                                    prioritizedTarget = loc;
+                                }  
+                            }
+                        }
+                    }
+                    targetLocation = prioritizedTarget;
+                }
+                if (prioritizedTarget != null){
+                    targetLocation = prioritizedTarget;
+                }  
     }
 
     //adds enemy archon to 12-15 in shared array
@@ -150,26 +174,25 @@ public class Miner {
         //set default target
         targetLocation = loc;
 
-        MapLocation baseLoc = rc.getLocation();
-
         //find base and set move to away from base
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
-                MapLocation base = robot.getLocation();
-                baseLoc = base;
-                move = base.directionTo(loc);
+                baseLoc = robot.location;
+                move = rc.getLocation().directionTo(baseLoc).opposite();
             }
         }
 
         //choose whether to reverse targeting order for lead (favoring away from the corners for more mining)
-        int rand = Data.rng.nextInt(3);
-        if (baseLoc.x < rc.getMapWidth()/2.0){
-            if (rand == 0){
-                reverseMiner = true;
-            }
-        } else{
-            if (rand != 0){
-                reverseMiner = true;
+        if (baseLoc != null){
+            int rand = Data.rng.nextInt(3);
+            if (baseLoc.x < rc.getMapWidth()/2.0){
+                if (rand == 0){
+                    reverseMiner = true;
+                }
+            } else{
+                if (rand != 0){
+                    reverseMiner = true;
+                }
             }
         }
 
