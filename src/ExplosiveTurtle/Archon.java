@@ -22,7 +22,6 @@ public class Archon {
     public static int maxBuilderSpawns = 1;
     public static int builderSpawned = 0;
     
-    
     public static void run(RobotController rc) throws GameActionException{
 
         Direction build = Direction.CENTER;
@@ -84,20 +83,6 @@ public class Archon {
                 }
             }
         }
-        /*
-        if (build != Direction.CENTER){
-            if (minersSpawned < maxMinerSpawns && rc.canBuildRobot(RobotType.MINER, build)){
-                rc.buildRobot(RobotType.MINER, build);
-                minersSpawned += 1;
-            } else if(soldiersSpawned < maxSoldierSpawns && rc.canBuildRobot(RobotType.SOLDIER, build)){
-                rc.buildRobot(RobotType.SOLDIER, build);
-            }
-            radialDirectionIndex+=1;
-            if (radialDirectionIndex == Data.directions.length){
-                radialDirectionIndex = 0;
-            }
-        }
-        */
     }
 
     public static Direction getMinerSpawnDir(RobotController rc) throws GameActionException{
@@ -151,10 +136,12 @@ public class Archon {
         }
 
         //check if enemy base is within sensing range of archon
-        for(RobotInfo robot: rc.senseNearbyRobots()){
+        forLoop:
+        for(RobotInfo robot: rc.senseNearbyRobots(34, rc.getTeam().opponent())){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() != rc.getTeam()){
                 enemyArchonNearby = true;
                 nearbyEnemyArchonLocation = robot.getLocation();
+                break forLoop;
             }
         }
 

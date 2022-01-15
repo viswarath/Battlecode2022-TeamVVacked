@@ -37,6 +37,13 @@ public class Archon {
          * different from checking around for enemy locations this takes less precendence
          * can only take place on round three because the archons need the second round to input guessed locations
         **/
+        if (enemyArchonNearby){
+            if( rc.canBuildRobot(RobotType.SOLDIER,Pathfinding.basicBuild(rc, nearbyEnemyArchonLocation, RobotType.SOLDIER))){
+                rc.buildRobot(RobotType.SOLDIER,Pathfinding.basicBuild(rc, nearbyEnemyArchonLocation, RobotType.SOLDIER));
+            }else{
+                return;
+            }
+        }
         if (!checkedGuessedLocs && rc.getRoundNum() > 2){
             for (int i = 0;i < 12; i++){
                 MapLocation check = null;
@@ -239,13 +246,13 @@ public class Archon {
             maxMinerSpawns = temp;
         }
 
-        RobotInfo[] robots = rc.senseNearbyRobots();
-
         //check if enemy base is within sensing range of archon
-        for(RobotInfo robot: robots){
-            if (robot.getType() == RobotType.ARCHON && robot.getTeam() != rc.getTeam()){
+        forLoop:
+        for(RobotInfo robot: rc.senseNearbyRobots(34, rc.getTeam().opponent())){
+            if (robot.getType() == RobotType.ARCHON){
                 enemyArchonNearby = true;
                 nearbyEnemyArchonLocation = robot.getLocation();
+                break forLoop;
             }
         }
 
