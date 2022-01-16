@@ -11,6 +11,7 @@ public class Miner {
     public static MapLocation targetLocation;
     public static MapLocation[] enemyArchons = new MapLocation[4];
     public static MapLocation baseLoc;
+    public static MapLocation randomMapLocation;
 
     public static int baseID;
 
@@ -101,10 +102,16 @@ public class Miner {
         } else{
             foundLeadLocation = false;
         }
-
-        //move in default location if no lead locations found
+        //setting a random location
+        if(!foundLeadLocation){
+            if(rc.canSenseLocation(randomMapLocation)){
+                randomMapLocation = Pathfinding.randomMapLocation(rc);
+            }
+        }
+        //move to random location if no lead locations found
+        rc.setIndicatorString("I am moving to " + randomMapLocation);
         if (!foundLeadLocation){
-            Direction move = Pathfinding.getSemiRandomDir(rc, directionIndex);
+            Direction move = Pathfinding.basicMove(rc,randomMapLocation);
             if (rc.canMove(move)){
                 rc.move(move);
             }
@@ -115,24 +122,6 @@ public class Miner {
                 //finds a lead location to target for mining if one is not already found
                 MapLocation prioritizedTarget = null;
                 if (!foundLeadLocation){
-                    // Direction[] facingArray = Pathfinding.getFacingArray(rc, directionIndex);
-                    // forLoop:
-                    // for (MapLocation loc : leadLocations){
-                    //     if (rc.canSenseLocation(loc)){
-                    //         if ((rc.senseLead(loc) > 1) && (rc.senseRobotAtLocation(loc) == null)){
-                    //             for (Direction dir : facingArray){
-                    //                 if (rc.getLocation().directionTo(loc) == dir){
-                    //                     prioritizedTarget = loc;
-                    //                     System.out.println("(" + targetLocation.x + "' " + targetLocation.y + "), " + rc.getID());
-                    //                     foundLeadLocation = true;
-                    //                     break forLoop; 
-                    //                 } else{
-                    //                     targetLocation = loc;
-                    //                 }
-                    //             }        
-                    //         }
-                    //     }
-                    // }
                     for (MapLocation loc : leadLocations){
                         if (rc.canSenseLocation(loc)){
                             if ((rc.senseLead(loc) > 1)){
@@ -171,14 +160,16 @@ public class Miner {
         RobotInfo[] robots = rc.senseNearbyRobots();
         //current MapLocation
         MapLocation loc = rc.getLocation();
+        //random MapLocation
+        randomMapLocation = Pathfinding.randomMapLocation(rc);
         //set default target
         targetLocation = loc;
 
         //find base and set move to away from base
         for(RobotInfo robot: robots){
             if (robot.getType() == RobotType.ARCHON && robot.getTeam() == rc.getTeam()){
-                baseLoc = robot.location;
-                move = rc.getLocation().directionTo(baseLoc).opposite();
+                baseLoc = robot.getLocation();
+                move = baseLoc.directionTo(rc.getLocation());
             }
         }
 
