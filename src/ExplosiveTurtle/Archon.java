@@ -157,10 +157,6 @@ public class Archon {
                     robotsSpawned+=1;
                 }
             }
-            //radialDirectionIndex+=1;
-            // if (radialDirectionIndex == Data.directions.length){
-            //     radialDirectionIndex = 0;
-            // }
         }
     }
 
@@ -185,23 +181,6 @@ public class Archon {
 
         //}
     }
-
-
-    // public static Direction getRadialSpawnDir(RobotController rc, RobotType type) throws GameActionException{
-    //     for (int i = radialDirectionIndex; i < Data.directions.length; i++){
-    //         if (rc.canBuildRobot(type, Data.directions[i]) == true){
-    //             return Data.directions[i];
-    //         }
-    //     }
-    //     if (radialDirectionIndex != 0){
-    //         for (int i = 0; i < radialDirectionIndex; i++){
-    //             if (rc.canBuildRobot(type, Data.directions[i]) == true){
-    //                 return Data.directions[i];
-    //             }
-    //         }
-    //     }
-    //     return getRadialSpawnDir(rc, RobotType.MINER);
-    // }
 
     public static Direction getSoldierSpawnDir(RobotController rc)throws GameActionException{
         MapLocation closest = null;
@@ -281,13 +260,6 @@ public class Archon {
         } else{
             addPossibleEnemyArchonLocations(rc, 9);
         }
-        /**
-         * print to check guessed locations!
-        System.out.print(rc.getID());
-        for(int i = 0;i <12; i++){
-            System.out.print("( " +rc.readSharedArray(i) + " )");
-        }
-        **/
 
         //add id to 56-63 for explosive turtle checking
         forLoop:
