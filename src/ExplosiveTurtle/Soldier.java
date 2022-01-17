@@ -34,6 +34,7 @@ public class Soldier {
         setTargetArchon(rc);
         attackBot = null;
         //System.out.println(currentTarget);
+
         outerLoop:
         if (!harassingSoldier && Data.turnCount < 300){
             for (int i = 41; i < 48; i+=2){
@@ -180,6 +181,16 @@ public class Soldier {
             }
         }
         harrassingDefaultDir = Data.directions[harassingDirIndex];
+        // int rng = rc.readSharedArray(39);
+        // rc.writeSharedArray(38, Data.rng.nextInt(3));
+        // Direction[] facingArray = Pathfinding.getFacingArray(rc, indexToPoint);
+        // harrassingDefaultDir = facingArray[rng];
+        // System.out.println(harrassingDefaultDir + ", " + rng);
+        // for (int j = 0; j < Data.directions.length; j++){
+        //     if (rc.getLocation().directionTo(targetPoint) == Data.directions[j]){
+        //         harassingDirIndex = j;
+        //     }
+        // }
     }
 
     //sets the guessed lcoation of the enemy archon to move towards
@@ -234,6 +245,19 @@ public class Soldier {
         
         if (rc.canMove(Pathfinding.basicMove(rc, moveTo)))
             rc.move(Pathfinding.basicMove(rc, moveTo));
+
+        //int maxHealth = 60;
+
+        // for (RobotInfo robot: rc.senseNearbyRobots(13, rc.getTeam().opponent())){
+        //     if(robot.getType() == RobotType.SOLDIER && rc.canAttack(robot.getLocation())){
+        //         if(robot.getHealth() < maxHealth){
+        //             attackBot = robot;
+        //         }
+        //     }
+        // }
+        // if(rc.canAttack(attackBot.getLocation())){
+        //     rc.attack(attackBot.getLocation());
+        // }
     }
 
     public static void harassingLogic(RobotController rc) throws GameActionException{
@@ -331,6 +355,32 @@ public class Soldier {
             }
         }
     }
+
+    // public static void groupUp(RobotController rc) throws GameActionException{
+    //     int soldiersNearby = 0;
+    //     RobotInfo[] robots = rc.senseNearbyRobots();
+    //     MapLocation farthestSoldierLocation = null;
+    //     for (RobotInfo robot : robots){
+    //         if (robot.type == RobotType.SOLDIER && robot.team == rc.getTeam()){
+    //             if (farthestSoldierLocation == null){
+    //                 farthestSoldierLocation = robot.getLocation();
+    //             } else{
+    //                 if (rc.getLocation().distanceSquaredTo(robot.getLocation()) > rc.getLocation().distanceSquaredTo(farthestSoldierLocation)){
+    //                     farthestSoldierLocation = robot.getLocation();
+    //                 }
+    //             }
+    //             soldiersNearby++;
+    //         }
+    //     }
+    //     if (soldiersNearby >= groupMinCount){
+    //         inGroup = true;
+    //     } else if (soldiersNearby == 0){
+    //         rc.move(Pathfinding.basicMove(rc, homeArconLocation));
+    //     } else{
+
+    //     }
+
+    // }
 
     public static void init(RobotController rc){
         RobotInfo[] robots = rc.senseNearbyRobots(2);
