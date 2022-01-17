@@ -274,7 +274,7 @@ public class Soldier {
             for (RobotInfo robot : robots){
                 if (robot.type == RobotType.SOLDIER || robot.type == RobotType.WATCHTOWER){
                     attackBot = robot;
-                    dir = rc.getLocation().directionTo(robot.location).opposite();
+                    dir = rc.getLocation().directionTo(robot.location);
                     break loop;
                 } else if (robot.type == RobotType.MINER){
                     if (attackBot == null){
@@ -405,13 +405,13 @@ public class Soldier {
 
         int area = rc.getMapHeight()*rc.getMapWidth();
         if (area <900){
-            buffer = 64;
+            buffer = 49;
         } else if (area < 1600){
-            buffer = 100;
+            buffer = 81;
         } else if (area < 2500){
-            buffer = 144;
+            buffer = 121;
         } else{
-            buffer = 196;
+            buffer = 169;
         }
     }
 }

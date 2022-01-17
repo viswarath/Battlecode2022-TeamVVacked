@@ -24,7 +24,7 @@ public class Archon {
 
     public static int leadBeforeBuild;
 
-    public static int soldiertoMinerCount = 0;
+    public static int soldiertoMinerCount = 1;
     public static int soldierToMinerRatio = 3;
     public static boolean minerPhaseEnd = false;
 
@@ -40,8 +40,6 @@ public class Archon {
         if (enemyArchonNearby){
             if( rc.canBuildRobot(RobotType.SOLDIER,Pathfinding.basicBuild(rc, nearbyEnemyArchonLocation, RobotType.SOLDIER))){
                 rc.buildRobot(RobotType.SOLDIER,Pathfinding.basicBuild(rc, nearbyEnemyArchonLocation, RobotType.SOLDIER));
-            }else{
-                return;
             }
         }
         if (!checkedGuessedLocs && rc.getRoundNum() > 2){
