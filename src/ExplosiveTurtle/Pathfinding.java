@@ -176,10 +176,4 @@ public class Pathfinding {
         }
         return new Direction[] {Direction.CENTER};
     }
-
-    public static MapLocation randomMapLocation(RobotController rc){
-
-        MapLocation random = new MapLocation((int)(Math.random()*rc.getMapWidth()), (int)(Math.random()*rc.getMapHeight()));
-        return random;
-    }
 }
