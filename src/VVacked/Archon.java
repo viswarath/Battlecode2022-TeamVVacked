@@ -70,9 +70,29 @@ public class Archon {
         //EXPLOSIVE TURTLE CHECK
         RobotInfo[] robots = rc.senseNearbyRobots();
         int soldiersNearby = 0;
+        int enemySoldiersNearby = 0;
         for (RobotInfo robot : robots){
             if (robot.type == RobotType.SOLDIER && robot.getTeam() == rc.getTeam()){
                 soldiersNearby++;
+            } else if (robot.type == RobotType.SOLDIER && robot.getTeam() != rc.getTeam()){
+                loop:
+                for (int i = 20; i < 29; i+=2){
+                    if (rc.readSharedArray(i) == rc.getID()){
+                        rc.writeSharedArray(i+1, 1);
+                        enemySoldiersNearby++;
+                        break loop;
+                    }
+                }
+            }
+        }
+        if (enemySoldiersNearby == 0){
+            loop:
+            for (int i = 20; i < 29; i+=2){
+                if (rc.readSharedArray(i) == rc.getID()){
+                    rc.writeSharedArray(i+1, 0);
+                    enemySoldiersNearby++;
+                    break loop;
+                }
             }
         }
         if (soldiersNearby >= soldiersInCircle){
@@ -321,6 +341,14 @@ public class Archon {
         //set randoms
         rc.writeSharedArray(38, Data.rng.nextInt(4));
         rc.writeSharedArray(38, Data.rng.nextInt(3));
+
+        loop:
+        for (int i = 20; i < 29; i+=2){
+            if (rc.readSharedArray(i) == 0){
+                rc.writeSharedArray(i, rc.getID());
+                break loop;
+            }
+        }
     }
 }
 

@@ -120,7 +120,7 @@ public class Soldier {
         }
 
         //if not able to attack an enemy archon, attack nearby soldiers and miners
-        if (!enemyArchonNearby && !harassingSoldier){
+        //if (!enemyArchonNearby){
             int maxHealth = 60;
             RobotInfo[] robots = rc.senseNearbyRobots(13, rc.getTeam().opponent());
             for (RobotInfo robot : robots){
@@ -135,7 +135,7 @@ public class Soldier {
                     rc.attack(attackBot.getLocation());
                 }
             }
-        }
+        //}
 
         if (!circleFormed){
             for (int i = 56; i < 63; i+=2){
@@ -299,6 +299,13 @@ public class Soldier {
         }
         if (rc.getLocation().distanceSquaredTo(homeArconLocation) > buffer && attackBot == null){
             dir = Pathfinding.basicMove(rc, homeArconLocation);
+        }
+        loop:
+        for (int i = 20; i < 29; i+=2){
+            if (rc.readSharedArray(i) == baseID && rc.readSharedArray(i+1) == 1){
+                dir = rc.getLocation().directionTo(homeArconLocation);
+                break loop;
+            }
         }
         if (rc.canMove(dir)){
             System.out.print("MOVING " + dir);
